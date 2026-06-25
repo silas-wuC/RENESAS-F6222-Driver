@@ -1,0 +1,7 @@
+[
+  {
+    "directory": "/home/ubuntu/Code/RENESAS-F6222-Driver",
+    "command": "gcc -std=c99 -Wall -Wextra -Wpedantic -Os -ffunction-sections -fdata-sections -MMD -MP -I include -fsyntax-only include/f6222.h",
+    "file": "include/f6222.h"
+  }
+]
