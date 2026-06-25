@@ -195,14 +195,14 @@
  * §8 SPI Protocol — Mode Selection M[2:0] (Table 5, Table 6)
  * ═══════════════════════════════════════════════════════════════ */
 
-#define F6222_SPI_M_LOCAL_REG_READ 0x00u  /* Mode 000 */
-#define F6222_SPI_M_LOCAL_REG_WRITE 0x01u /* Mode 001 */
+#define F6222_SPI_M_LOCAL_REG_READ 0x00u   /* Mode 000 */
+#define F6222_SPI_M_LOCAL_REG_WRITE 0x01u  /* Mode 001 */
 #define F6222_SPI_M_GLOBAL_LUT_WRITE 0x02u /* Mode 010 */
 #define F6222_SPI_M_GLOBAL_REG_WRITE 0x03u /* Mode 011 */
-#define F6222_SPI_M_GLOBAL_FBS 0x04u      /* Mode 100 */
-#define F6222_SPI_M_LOCAL_FBS 0x05u       /* Mode 101 */
-#define F6222_SPI_M_LOCAL_LUT_WRITE 0x06u /* Mode 110 */
-#define F6222_SPI_M_LOCAL_LUT_READ 0x07u  /* Mode 111 */
+#define F6222_SPI_M_GLOBAL_FBS 0x04u       /* Mode 100 */
+#define F6222_SPI_M_LOCAL_FBS 0x05u        /* Mode 101 */
+#define F6222_SPI_M_LOCAL_LUT_WRITE 0x06u  /* Mode 110 */
+#define F6222_SPI_M_LOCAL_LUT_READ 0x07u   /* Mode 111 */
 
 /* RF Load (RL) — Local Register Write / FBS commands (Table 7, Table 11) */
 #define F6222_SPI_RF_LOAD_00 0x00u /* buffer; latch on subsequent RL=01 */
@@ -246,9 +246,9 @@
 #define F6222_CH_IS_ODD(ch) ((ch) & 1u)
 
 /* Phase / gain step sizes (datasheet typical) */
-#define F6222_PHASE_STEP_DEG_x10 56u  /* 5.6° × 10 for integer math */
-#define F6222_GAIN_STEP_DB_x100 45u   /* 0.45 dB × 100               */
-#define F6222_GAIN_RANGE_DB_x10 284u  /* 28.4 dB × 10                */
+#define F6222_PHASE_STEP_DEG_x10 56u /* 5.6° × 10 for integer math */
+#define F6222_GAIN_STEP_DB_x100 45u  /* 0.45 dB × 100               */
+#define F6222_GAIN_RANGE_DB_x10 284u /* 28.4 dB × 10                */
 
 /**
  * f6222_ch_regs_t — register addresses for one RF channel.
@@ -447,7 +447,8 @@ f6222_status_t f6222_lut_read(f6222_dev_t* dev, uint8_t ch, uint8_t chip_addr, u
 /**
  * f6222_lut_write_global() — broadcast LUT entry to all chips (Mode 010).
  */
-f6222_status_t f6222_lut_write_global(f6222_dev_t* dev, bool lut_all_channels, uint8_t ch, uint8_t lut_addr, uint16_t val);
+f6222_status_t f6222_lut_write_global(f6222_dev_t* dev, bool lut_all_channels, uint8_t ch, uint8_t lut_addr,
+                                      uint16_t val);
 
 /**
  * f6222_fbs_local() — switch this chip to a stored LUT beam state (Mode 101).
