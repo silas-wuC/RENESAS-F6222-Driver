@@ -14,6 +14,19 @@
 #include <stddef.h>
 #include <stdint.h>
 
+/*
+ * Naming convention (R35DS0065EU0100 §9):
+ *
+ *   F6222_REG_<RegisterName>              register address
+ *   F6222_<RegisterName>_<FieldName>      field bit or composite value
+ *   F6222_<RegisterName>_<FieldName>_SHIFT / _MASK
+ *   F6222_<RegisterName>_RESET            full-register reset value
+ *   F6222_<RegisterName>_TYPICAL          full-register typical value
+ *
+ * Per-channel registers use literal CHn: F6222_CHn_SET_PS_SET, etc.
+ * C macros uppercase datasheet mixed-case fields (SA_Index → SA_INDEX).
+ */
+
 /* ═══════════════════════════════════════════════════════════════
  * Register Addresses
  * ═══════════════════════════════════════════════════════════════ */
