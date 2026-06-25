@@ -62,42 +62,35 @@
  * Register Field Masks & Shifts
  * ═══════════════════════════════════════════════════════════════ */
 
-/* CTRL_CFG (0x00) — reset 0x0010, typical 0x0000 */
-#define F6222_CTRL_GLOBAL_PWD_BIT 4u /* 1 = all channels off    */
-#define F6222_CTRL_GLOBAL_PWD (1u << 4)
-#define F6222_CTRL_SCAN_MODE (1u << 3) /* write-only scan mode */
-#define F6222_CTRL_SA_INDEX_MASK 0x0007u /* sub-array index [2:0]  */
-#define F6222_CTRL_POR 0x0010u           /* hardware reset value     */
+/* §9.2.1 Register Name: CTRL_CFG — reset 0x0010, typical 0x0000 */
+#define F6222_CTRL_CFG_GLOBAL_PWD (1u << 4)
+#define F6222_CTRL_CFG_SCAN_MODE (1u << 3)
+#define F6222_CTRL_CFG_SA_INDEX_MASK 0x0007u
+#define F6222_CTRL_CFG_RESET 0x0010u
+#define F6222_CTRL_CFG_TYPICAL 0x0000u
 
-/* PTAT_BIAS_CFG (0x01) — reset 0x0080, typical 0x088A
+/* §9.2.2 Register Name: PTAT_BIAS_CFG — reset 0x0080, typical 0x088A
  *
- *  Bit field summary:
- *   [11:9] MB_PT2_SLOPE  — PTAT2 slope trim (effective only when PT2_EN=1)
- *   [8]    MB_PT2_EN     — enable PTAT2 temperature compensation
- *   [7:5]  MB_PT_ADJ     — ±30% bias reference adjustment (typical = 4)
- *   [3]    MB_EN         — master bias generator enable
- *   [1]    MB_BG_SEL     — must be set to 1 (datasheet)
- *   [0]    MB_R_SEL      — reference resistor select (0 = internal, 1 = external)
- *
- *  PTAT mode  (7.4 dB gain flatness vs temp):  MB_EN=1, PT2_EN=0 → 0x0088
- *  PTAT2 mode (1.5 dB gain flatness vs temp):  MB_EN=1, PT2_EN=1, SLOPE=4 → 0x0788
+ *  PTAT mode  (7.4 dB gain flatness vs temp):  MB_EN=1, MB_PT2_EN=0 → 0x0088
+ *  PTAT2 mode (1.5 dB gain flatness vs temp):  MB_EN=1, MB_PT2_EN=1, MB_PT2_SLOPE=4 → 0x0788
  */
-#define F6222_BIAS_MB_PT2_SLOPE_SHIFT 9u
-#define F6222_BIAS_MB_PT2_SLOPE_MASK (0x07u << 9)
-#define F6222_BIAS_MB_PT2_EN (1u << 8)
-#define F6222_BIAS_MB_PT_ADJ_SHIFT 5u
-#define F6222_BIAS_MB_PT_ADJ_MASK (0x07u << 5)
-#define F6222_BIAS_MB_EN (1u << 3)
-#define F6222_BIAS_MB_BG_SEL (1u << 1)
-#define F6222_BIAS_MB_R_SEL (1u << 0)
-#define F6222_BIAS_TYPICAL 0x088Au     /* datasheet typical operating value */
-#define F6222_BIAS_TYPICAL_PT2 0x0788u /* PTAT2 mode, SLOPE=4             */
+#define F6222_PTAT_BIAS_CFG_MB_PT2_SLOPE_SHIFT 9u
+#define F6222_PTAT_BIAS_CFG_MB_PT2_SLOPE_MASK (0x07u << 9)
+#define F6222_PTAT_BIAS_CFG_MB_PT2_EN (1u << 8)
+#define F6222_PTAT_BIAS_CFG_MB_PT_ADJ_SHIFT 5u
+#define F6222_PTAT_BIAS_CFG_MB_PT_ADJ_MASK (0x07u << 5)
+#define F6222_PTAT_BIAS_CFG_MB_EN (1u << 3)
+#define F6222_PTAT_BIAS_CFG_MB_BG_SEL (1u << 1)
+#define F6222_PTAT_BIAS_CFG_MB_R_SEL (1u << 0)
+#define F6222_PTAT_BIAS_CFG_RESET 0x0080u
+#define F6222_PTAT_BIAS_CFG_TYPICAL 0x088Au
+#define F6222_PTAT_BIAS_CFG_TYPICAL_PTAT2 0x0788u
 
-/* MO_MEM_ACT (0x03) — read-only */
-#define F6222_MO_ACTIVE_MODE_SHIFT 13u
-#define F6222_MO_ACTIVE_MODE_MASK (0x07u << 13)
-#define F6222_MO_ACTIVE_LUT_SHIFT 5u
-#define F6222_MO_ACTIVE_LUT_MASK (0xFFu << 5)
+/* §9.2.4 Register Name: MO_MEM_ACT — reset 0x0000 */
+#define F6222_MO_MEM_ACT_ACTIVE_MODE_SHIFT 13u
+#define F6222_MO_MEM_ACT_ACTIVE_MODE_MASK (0x07u << 13)
+#define F6222_MO_MEM_ACT_ACTIVE_LUT_STATE_SHIFT 5u
+#define F6222_MO_MEM_ACT_ACTIVE_LUT_STATE_MASK (0xFFu << 5)
 
 /* CHn_SET (0x22/26/.../5E) — reset 0x03F9, typical 0x03F8
  *
@@ -160,25 +153,36 @@
 /* LNAIREF3/4 (0x6B/0x6C) */
 #define F6222_LNA_IREFn_CONT_MASK 0x001Fu
 
-/* ADC_TEST (0x0A) — typical 0x0003 */
+/* §9.2.7 Register Name: ADC_TEST — reset 0x0000, typical 0x0003 */
+#define F6222_ADC_TEST_CHOPPER_EN (1u << 1)
+#define F6222_ADC_TEST_ADC_I_X2 (1u << 0)
+#define F6222_ADC_TEST_RESET 0x0000u
 #define F6222_ADC_TEST_TYPICAL 0x0003u
-#define F6222_ADC_CHOPPER_EN (1u << 1)
-#define F6222_ADC_I_X2 (1u << 0)
 
-/* CLK_CTRL (0x05) — typical 0x0B30 (60 MHz / 12 → 5 MHz) */
+/* §9.2.5 Register Name: CLK_CTRL — reset 0x0B30, typical 0x0B30 */
+#define F6222_CLK_CTRL_BASE_CLK_CTRL_SHIFT 8u
+#define F6222_CLK_CTRL_BASE_CLK_CTRL_MASK (0x0Fu << 8)
+#define F6222_CLK_CTRL_ADC_CLK_HIGH_SHIFT 4u
+#define F6222_CLK_CTRL_ADC_CLK_HIGH_MASK (0x0Fu << 4)
+#define F6222_CLK_CTRL_ADC_CLK_LOW_SHIFT 0u
+#define F6222_CLK_CTRL_ADC_CLK_LOW_MASK 0x000Fu
+#define F6222_CLK_CTRL_RESET 0x0B30u
 #define F6222_CLK_CTRL_TYPICAL 0x0B30u
 
-/* ADC_CTRL (0x06) */
-#define F6222_ADC_CTRL_TYPICAL 0x0000u
-#define F6222_ADC_OSC_EN (1u << 10)
+/* §9.2.6 Register Name: ADC_CTRL — reset 0x0000, typical 0x0000 */
+#define F6222_ADC_CTRL_OSC_FREQ_SHIFT 11u
+#define F6222_ADC_CTRL_OSC_FREQ_MASK (0x03u << 11)
+#define F6222_ADC_CTRL_OSC_EN (1u << 10)
 #define F6222_ADC_CTRL_TEST_MUX (1u << 9)
-#define F6222_ADC_TRIG_TEMP (1u << 8)
-#define F6222_ADC_CTRL_START_TEMP (F6222_ADC_TRIG_TEMP | F6222_ADC_OSC_EN) /* 0x0500 */
+#define F6222_ADC_CTRL_TEMP (1u << 8)
+#define F6222_ADC_CTRL_RESET 0x0000u
+#define F6222_ADC_CTRL_TYPICAL 0x0000u
+#define F6222_ADC_CTRL_START_TEMP (F6222_ADC_CTRL_TEMP | F6222_ADC_CTRL_OSC_EN) /* 0x0500 */
 
-/* TEMP_DATA (0x0B) result fields */
-#define F6222_ADC_DONE_BIT (1u << 10)
-#define F6222_ADC_DATA_MASK 0x03FFu /* 10-bit result */
-#define F6222_ADC_POLL_MAX 1000u
+/* §9.2.8 Register Name: TEMP_DATA — reset 0x0000 */
+#define F6222_TEMP_DATA_ADC_DONE (1u << 10)
+#define F6222_TEMP_DATA_DATA_MASK 0x03FFu
+#define F6222_TEMP_DATA_ADC_POLL_MAX 1000u
 
 /* ═══════════════════════════════════════════════════════════════
  * SPI Protocol Mode Bits (M[2:0])
