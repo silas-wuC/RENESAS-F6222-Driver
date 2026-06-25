@@ -91,76 +91,7 @@
 #define F6222_MO_MEM_ACT_ACTIVE_MODE_MASK (0x07u << 13)
 #define F6222_MO_MEM_ACT_ACTIVE_LUT_STATE_SHIFT 5u
 #define F6222_MO_MEM_ACT_ACTIVE_LUT_STATE_MASK (0xFFu << 5)
-
-/* §9.2.11 Register Name: CHn_SET — reset 0x03F9, typical 0x03F8
- *
- *  [15:10] PS_SET  — 6-bit phase (0–63, step ≈ 5.6°)
- *  [9:4]   VGA_SET — 6-bit gain (0–31 lower, 32–63 upper; step ≈ 0.45 dB)
- *  [3]     LNA_SW  — 1 = DA enabled, 0 = DA bypassed
- *  [0]     CH_PWD  — 1 = channel powered down
- */
-#define F6222_CHn_SET_PS_SET_SHIFT 10u
-#define F6222_CHn_SET_PS_SET_MASK (0x3Fu << 10)
-#define F6222_CHn_SET_PS_SET_MAX 63u
-#define F6222_CHn_SET_VGA_SET_SHIFT 4u
-#define F6222_CHn_SET_VGA_SET_MASK (0x3Fu << 4)
-#define F6222_CHn_SET_VGA_SET_MAX 63u
-#define F6222_CHn_SET_LNA_SW (1u << 3)
-#define F6222_CHn_SET_CH_PWD (1u << 0)
-#define F6222_CHn_SET_RESET 0x03F9u
-#define F6222_CHn_SET_TYPICAL 0x03F8u
-
-/* §9.2.10 Register Name: CHn_CTRL — reset 0x20FF, typical 0x2FFF */
-#define F6222_CHn_CTRL_ATT_BITS_SHIFT 10u
-#define F6222_CHn_CTRL_ATT_BITS_MASK (0x07u << 10)
-#define F6222_CHn_CTRL_PS_PHT_SHIFT 8u
-#define F6222_CHn_CTRL_PS_PHT_MASK (0x03u << 8)
-#define F6222_CHn_CTRL_CH_MODE (1u << 7)
-#define F6222_CHn_CTRL_LNA_MODE (1u << 6)
-#define F6222_CHn_CTRL_PS_MODE (1u << 5)
-#define F6222_CHn_CTRL_ATT_MODE (1u << 4)
-#define F6222_CHn_CTRL_LNA_EN (1u << 3)
-#define F6222_CHn_CTRL_VGA_EN (1u << 2)
-#define F6222_CHn_CTRL_PS_EN (1u << 1)
-#define F6222_CHn_CTRL_ATT_EN (1u << 0)
-#define F6222_CHn_CTRL_RESET 0x20FFu
-#define F6222_CHn_CTRL_TYPICAL 0x2FFFu
-
-/* §9.2.9 Register Name: CHn_BIAS — reset 0x70DB, typical 0x6CDB */
-#define F6222_CHn_BIAS_LNA_BIAS_SHIFT 13u
-#define F6222_CHn_BIAS_LNA_BIAS_MASK (0x07u << 13)
-#define F6222_CHn_BIAS_VGA_BIAS_SHIFT 9u
-#define F6222_CHn_BIAS_VGA_BIAS_MASK (0x0Fu << 9)
-#define F6222_CHn_BIAS_PS_BIAS_SHIFT 6u
-#define F6222_CHn_BIAS_PS_BIAS_MASK (0x07u << 6)
-#define F6222_CHn_BIAS_ATT_BIAS_SHIFT 3u
-#define F6222_CHn_BIAS_ATT_BIAS_MASK (0x07u << 3)
-#define F6222_CHn_BIAS_CH_BIAS_SHIFT 0u
-#define F6222_CHn_BIAS_CH_BIAS_MASK 0x07u
-#define F6222_CHn_BIAS_RESET 0x70DBu
-#define F6222_CHn_BIAS_TYPICAL 0x6CDBu
-
-/* §9.2.12 Register Name: LNAIREFn */
-#define F6222_LNAIREF1_LNA_IREF_SHUTDOWN (1u << 5)
-#define F6222_LNAIREF1_LNA_IREF1_CONT_MASK 0x001Fu
-#define F6222_LNAIREF1_RESET 0x0040u
-
-#define F6222_LNAIREF2_LNA_IREF_MULT_SHIFT 5u
-#define F6222_LNAIREF2_LNA_IREF_MULT_MASK (0x07u << 5)
-#define F6222_LNAIREF2_LNA_IREF2_CONT_MASK 0x001Fu
-#define F6222_LNAIREF2_RESET 0x0020u
-
-#define F6222_LNAIREF3_LNA_IREF3_CONT_MASK 0x001Fu
-#define F6222_LNAIREF3_RESET 0x0000u
-
-#define F6222_LNAIREF4_LNA_IREF4_CONT_MASK 0x001Fu
-#define F6222_LNAIREF4_RESET 0x0000u
-
-/* §9.2.7 Register Name: ADC_TEST — reset 0x0000, typical 0x0003 */
-#define F6222_ADC_TEST_CHOPPER_EN (1u << 1)
-#define F6222_ADC_TEST_ADC_I_X2 (1u << 0)
-#define F6222_ADC_TEST_RESET 0x0000u
-#define F6222_ADC_TEST_TYPICAL 0x0003u
+#define F6222_MO_MEM_ACT_RESET 0x0000u
 
 /* §9.2.5 Register Name: CLK_CTRL — reset 0x0B30, typical 0x0B30 */
 #define F6222_CLK_CTRL_BASE_CLK_CTRL_SHIFT 8u
@@ -182,10 +113,80 @@
 #define F6222_ADC_CTRL_TYPICAL 0x0000u
 #define F6222_ADC_CTRL_START_TEMP (F6222_ADC_CTRL_TEMP | F6222_ADC_CTRL_OSC_EN) /* 0x0500 */
 
+/* §9.2.7 Register Name: ADC_TEST — reset 0x0000, typical 0x0003 */
+#define F6222_ADC_TEST_CHOPPER_EN (1u << 1)
+#define F6222_ADC_TEST_ADC_I_X2 (1u << 0)
+#define F6222_ADC_TEST_RESET 0x0000u
+#define F6222_ADC_TEST_TYPICAL 0x0003u
+
 /* §9.2.8 Register Name: TEMP_DATA — reset 0x0000 */
 #define F6222_TEMP_DATA_ADC_DONE (1u << 10)
 #define F6222_TEMP_DATA_DATA_MASK 0x03FFu
 #define F6222_TEMP_DATA_ADC_POLL_MAX 1000u
+
+/* §9.2.9 Register Name: CHn_BIAS — reset 0x70DB, typical 0x6CDB */
+#define F6222_CHn_BIAS_LNA_BIAS_SHIFT 13u
+#define F6222_CHn_BIAS_LNA_BIAS_MASK (0x07u << 13)
+#define F6222_CHn_BIAS_VGA_BIAS_SHIFT 9u
+#define F6222_CHn_BIAS_VGA_BIAS_MASK (0x0Fu << 9)
+#define F6222_CHn_BIAS_PS_BIAS_SHIFT 6u
+#define F6222_CHn_BIAS_PS_BIAS_MASK (0x07u << 6)
+#define F6222_CHn_BIAS_ATT_BIAS_SHIFT 3u
+#define F6222_CHn_BIAS_ATT_BIAS_MASK (0x07u << 3)
+#define F6222_CHn_BIAS_CH_BIAS_SHIFT 0u
+#define F6222_CHn_BIAS_CH_BIAS_MASK 0x07u
+#define F6222_CHn_BIAS_RESET 0x70DBu
+#define F6222_CHn_BIAS_TYPICAL 0x6CDBu
+
+/* §9.2.10 Register Name: CHn_CTRL — reset 0x20FF, typical 0x2FFF */
+#define F6222_CHn_CTRL_ATT_BITS_SHIFT 10u
+#define F6222_CHn_CTRL_ATT_BITS_MASK (0x07u << 10)
+#define F6222_CHn_CTRL_PS_PHT_SHIFT 8u
+#define F6222_CHn_CTRL_PS_PHT_MASK (0x03u << 8)
+#define F6222_CHn_CTRL_CH_MODE (1u << 7)
+#define F6222_CHn_CTRL_LNA_MODE (1u << 6)
+#define F6222_CHn_CTRL_PS_MODE (1u << 5)
+#define F6222_CHn_CTRL_ATT_MODE (1u << 4)
+#define F6222_CHn_CTRL_LNA_EN (1u << 3)
+#define F6222_CHn_CTRL_VGA_EN (1u << 2)
+#define F6222_CHn_CTRL_PS_EN (1u << 1)
+#define F6222_CHn_CTRL_ATT_EN (1u << 0)
+#define F6222_CHn_CTRL_RESET 0x20FFu
+#define F6222_CHn_CTRL_TYPICAL 0x2FFFu
+
+/* §9.2.11 Register Name: CHn_SET — reset 0x03F9, typical 0x03F8
+ *
+ *  [15:10] PS_SET  — 6-bit phase (0–63, step ≈ 5.6°)
+ *  [9:4]   VGA_SET — 6-bit gain (0–31 lower, 32–63 upper; step ≈ 0.45 dB)
+ *  [3]     LNA_SW  — 1 = DA enabled, 0 = DA bypassed
+ *  [0]     CH_PWD  — 1 = channel powered down
+ */
+#define F6222_CHn_SET_PS_SET_SHIFT 10u
+#define F6222_CHn_SET_PS_SET_MASK (0x3Fu << 10)
+#define F6222_CHn_SET_PS_SET_MAX 63u
+#define F6222_CHn_SET_VGA_SET_SHIFT 4u
+#define F6222_CHn_SET_VGA_SET_MASK (0x3Fu << 4)
+#define F6222_CHn_SET_VGA_SET_MAX 63u
+#define F6222_CHn_SET_LNA_SW (1u << 3)
+#define F6222_CHn_SET_CH_PWD (1u << 0)
+#define F6222_CHn_SET_RESET 0x03F9u
+#define F6222_CHn_SET_TYPICAL 0x03F8u
+
+/* §9.2.12 Register Name: LNAIREFn */
+#define F6222_LNAIREF1_LNA_IREF_SHUTDOWN (1u << 5)
+#define F6222_LNAIREF1_LNA_IREF1_CONT_MASK 0x001Fu
+#define F6222_LNAIREF1_RESET 0x0040u
+
+#define F6222_LNAIREF2_LNA_IREF_MULT_SHIFT 5u
+#define F6222_LNAIREF2_LNA_IREF_MULT_MASK (0x07u << 5)
+#define F6222_LNAIREF2_LNA_IREF2_CONT_MASK 0x001Fu
+#define F6222_LNAIREF2_RESET 0x0020u
+
+#define F6222_LNAIREF3_LNA_IREF3_CONT_MASK 0x001Fu
+#define F6222_LNAIREF3_RESET 0x0000u
+
+#define F6222_LNAIREF4_LNA_IREF4_CONT_MASK 0x001Fu
+#define F6222_LNAIREF4_RESET 0x0000u
 
 /* ═══════════════════════════════════════════════════════════════
  * §8 SPI Protocol — Mode Selection M[2:0] (Table 5, Table 6)
@@ -253,9 +254,9 @@
  * Use f6222_ch_reg_map[F6222_CH_TO_IDX(ch)] to look up a channel's addresses (ch = 1..16).
  */
 typedef struct {
-    uint8_t bias; /* CHn_BIAS register address */
-    uint8_t ctrl; /* CHn_CTRL register address */
-    uint8_t set;  /* CHn_SET register address (phase, gain, power-down) */
+    uint8_t ch_bias; /* CHn_BIAS */
+    uint8_t ch_ctrl; /* CHn_CTRL */
+    uint8_t ch_set;  /* CHn_SET  */
 } f6222_ch_regs_t;
 
 /* Register address table; array index 0..15 maps to API ch 1..16 (CH1..CH16). */
@@ -354,7 +355,7 @@ f6222_status_t f6222_scratch_test(f6222_dev_t* dev, uint8_t chip_addr);
 /**
  * f6222_reg_write() — local register write (single chip, 40-bit frame).
  *
- * @param rf_load    F6222_RF_LOAD_BUFFER or F6222_RF_LOAD_IMMEDIATE.
+ * @param rf_load    F6222_SPI_RF_LOAD_00 (buffer) or F6222_SPI_RF_LOAD_01 (immediate).
  * @param chip_addr  5-bit chip address matching hardware ADD[4:0] pins (0–31).
  * @param reg        7-bit register address.
  * @param val        16-bit data to write.
@@ -380,12 +381,12 @@ f6222_status_t f6222_reg_write_global(f6222_dev_t* dev, bool sa_op_enable, uint8
  * f6222_set_phase() — set the phase of one RF channel.
  *
  * @param ch       Channel number, 1 (CH1) … 16 (CH16), datasheet 1-based.
- * @param ps_step  6-bit phase step (PS_SET), 0–63.  Angle ≈ ps_step × 5.6°.
+ * @param ps_set   6-bit PS_SET code, 0–63.  Angle ≈ ps_set × 5.6°.
  *
  * Register CHn_SET (read-modify-write):
  *   CH1 0x22  CH2 0x26  …  CH16 0x5E  (stride 4)
  */
-f6222_status_t f6222_set_phase(f6222_dev_t* dev, uint8_t rf_load, uint8_t chip_addr, uint8_t ch, uint8_t ps_step);
+f6222_status_t f6222_set_phase(f6222_dev_t* dev, uint8_t rf_load, uint8_t chip_addr, uint8_t ch, uint8_t ps_set);
 
 /**
  * f6222_set_gain() — set the gain of one RF channel.
@@ -419,7 +420,7 @@ f6222_status_t f6222_set_global_pwd(f6222_dev_t* dev, uint8_t chip_addr, bool po
 /**
  * f6222_apply_rf() — latch buffered phase/gain settings to RF output.
  *
- * Issues a local register write to SCRATCH with RF_LOAD_IMMEDIATE,
+ * Issues a local register write to SCRATCH with F6222_SPI_RF_LOAD_01,
  * triggering a bus-wide update of all buffered CHn_SET values on every chip.
  */
 f6222_status_t f6222_apply_rf(f6222_dev_t* dev, uint8_t chip_addr);
