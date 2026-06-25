@@ -92,66 +92,69 @@
 #define F6222_MO_MEM_ACT_ACTIVE_LUT_STATE_SHIFT 5u
 #define F6222_MO_MEM_ACT_ACTIVE_LUT_STATE_MASK (0xFFu << 5)
 
-/* CHn_SET (0x22/26/.../5E) — reset 0x03F9, typical 0x03F8
+/* §9.2.11 Register Name: CHn_SET — reset 0x03F9, typical 0x03F8
  *
- *  Bit layout:
- *   [15:10]  PS_SET   — 6-bit phase code  (0 = 0°, 63 ≈ 354°, step ≈ 5.6°)
- *   [9:4]    VGA_SET  — 6-bit gain code   (0–31 lower range, 32–63 upper range)
- *   [3]      LNA_SW   — 1 = DA enabled (nominal), 0 = DA bypassed (high linearity)
- *   [0]      CH_PWD   — 1 = channel powered down, 0 = enabled
- *
- *  Gain step ≈ 0.45 dB; total range ≈ 28.4 dB.
+ *  [15:10] PS_SET  — 6-bit phase (0–63, step ≈ 5.6°)
+ *  [9:4]   VGA_SET — 6-bit gain (0–31 lower, 32–63 upper; step ≈ 0.45 dB)
+ *  [3]     LNA_SW  — 1 = DA enabled, 0 = DA bypassed
+ *  [0]     CH_PWD  — 1 = channel powered down
  */
-#define F6222_SET_PS_SHIFT 10u
-#define F6222_SET_PS_MASK (0x3Fu << 10)
-#define F6222_SET_PS_MAX 63u
-#define F6222_SET_VGA_SHIFT 4u
-#define F6222_SET_VGA_MASK (0x3Fu << 4)
-#define F6222_SET_VGA_MAX 63u
-#define F6222_SET_LNA_SW (1u << 3)
-#define F6222_SET_CH_PWD (1u << 0)
-#define F6222_SET_TYPICAL 0x03F8u /* PS=0°, gain=max, LNA_SW=1, enabled */
-#define F6222_SET_POR 0x03F9u     /* hardware reset; CH_PWD=1             */
+#define F6222_CHn_SET_PS_SET_SHIFT 10u
+#define F6222_CHn_SET_PS_SET_MASK (0x3Fu << 10)
+#define F6222_CHn_SET_PS_SET_MAX 63u
+#define F6222_CHn_SET_VGA_SET_SHIFT 4u
+#define F6222_CHn_SET_VGA_SET_MASK (0x3Fu << 4)
+#define F6222_CHn_SET_VGA_SET_MAX 63u
+#define F6222_CHn_SET_LNA_SW (1u << 3)
+#define F6222_CHn_SET_CH_PWD (1u << 0)
+#define F6222_CHn_SET_RESET 0x03F9u
+#define F6222_CHn_SET_TYPICAL 0x03F8u
 
-/* CHn_CTRL (0x21/25/.../5D) — reset 0x20FF, typical 0x2FFF */
-#define F6222_CTRL_ATT_BITS_SHIFT 10u
-#define F6222_CTRL_ATT_BITS_MASK (0x07u << 10)
-#define F6222_CTRL_PS_PHT_SHIFT 8u
-#define F6222_CTRL_PS_PHT_MASK (0x03u << 8)
-#define F6222_CTRL_CH_MODE (1u << 7)  /* 1 = nominal bias, 0 = low-bias (~18% IDD reduction) */
-#define F6222_CTRL_LNA_MODE (1u << 6)
-#define F6222_CTRL_PS_MODE (1u << 5)
-#define F6222_CTRL_ATT_MODE (1u << 4)
-#define F6222_CTRL_LNA_EN (1u << 3)
-#define F6222_CTRL_VGA_EN (1u << 2)
-#define F6222_CTRL_PS_EN (1u << 1)
-#define F6222_CTRL_ATT_EN (1u << 0)
-#define F6222_CTRL_CH_TYPICAL 0x2FFFu
+/* §9.2.10 Register Name: CHn_CTRL — reset 0x20FF, typical 0x2FFF */
+#define F6222_CHn_CTRL_ATT_BITS_SHIFT 10u
+#define F6222_CHn_CTRL_ATT_BITS_MASK (0x07u << 10)
+#define F6222_CHn_CTRL_PS_PHT_SHIFT 8u
+#define F6222_CHn_CTRL_PS_PHT_MASK (0x03u << 8)
+#define F6222_CHn_CTRL_CH_MODE (1u << 7)
+#define F6222_CHn_CTRL_LNA_MODE (1u << 6)
+#define F6222_CHn_CTRL_PS_MODE (1u << 5)
+#define F6222_CHn_CTRL_ATT_MODE (1u << 4)
+#define F6222_CHn_CTRL_LNA_EN (1u << 3)
+#define F6222_CHn_CTRL_VGA_EN (1u << 2)
+#define F6222_CHn_CTRL_PS_EN (1u << 1)
+#define F6222_CHn_CTRL_ATT_EN (1u << 0)
+#define F6222_CHn_CTRL_RESET 0x20FFu
+#define F6222_CHn_CTRL_TYPICAL 0x2FFFu
 
-/* CHn_BIAS (0x20/24/.../5C) — reset 0x70DB, typical 0x6CDB */
-#define F6222_BIAS_LNA_SHIFT 13u
-#define F6222_BIAS_LNA_MASK (0x07u << 13)
-#define F6222_BIAS_VGA_SHIFT 9u
-#define F6222_BIAS_VGA_MASK (0x0Fu << 9)
-#define F6222_BIAS_PS_SHIFT 6u
-#define F6222_BIAS_PS_MASK (0x07u << 6)
-#define F6222_BIAS_ATT_SHIFT 3u
-#define F6222_BIAS_ATT_MASK (0x07u << 3)
-#define F6222_BIAS_CH_SHIFT 0u
-#define F6222_BIAS_CH_MASK 0x07u
-#define F6222_BIAS_CH_TYPICAL 0x6CDBu
+/* §9.2.9 Register Name: CHn_BIAS — reset 0x70DB, typical 0x6CDB */
+#define F6222_CHn_BIAS_LNA_BIAS_SHIFT 13u
+#define F6222_CHn_BIAS_LNA_BIAS_MASK (0x07u << 13)
+#define F6222_CHn_BIAS_VGA_BIAS_SHIFT 9u
+#define F6222_CHn_BIAS_VGA_BIAS_MASK (0x0Fu << 9)
+#define F6222_CHn_BIAS_PS_BIAS_SHIFT 6u
+#define F6222_CHn_BIAS_PS_BIAS_MASK (0x07u << 6)
+#define F6222_CHn_BIAS_ATT_BIAS_SHIFT 3u
+#define F6222_CHn_BIAS_ATT_BIAS_MASK (0x07u << 3)
+#define F6222_CHn_BIAS_CH_BIAS_SHIFT 0u
+#define F6222_CHn_BIAS_CH_BIAS_MASK 0x07u
+#define F6222_CHn_BIAS_RESET 0x70DBu
+#define F6222_CHn_BIAS_TYPICAL 0x6CDBu
 
-/* LNAIREF1 (0x69) */
-#define F6222_LNA_IREF_SHUTDOWN (1u << 5)
-#define F6222_LNA_IREF1_CONT_MASK 0x001Fu
+/* §9.2.12 Register Name: LNAIREFn */
+#define F6222_LNAIREF1_LNA_IREF_SHUTDOWN (1u << 5)
+#define F6222_LNAIREF1_LNA_IREF1_CONT_MASK 0x001Fu
+#define F6222_LNAIREF1_RESET 0x0040u
 
-/* LNAIREF2 (0x6A) */
-#define F6222_LNA_IREF_MULT_SHIFT 5u
-#define F6222_LNA_IREF_MULT_MASK (0x07u << 5)
-#define F6222_LNA_IREF2_CONT_MASK 0x001Fu
+#define F6222_LNAIREF2_LNA_IREF_MULT_SHIFT 5u
+#define F6222_LNAIREF2_LNA_IREF_MULT_MASK (0x07u << 5)
+#define F6222_LNAIREF2_LNA_IREF2_CONT_MASK 0x001Fu
+#define F6222_LNAIREF2_RESET 0x0020u
 
-/* LNAIREF3/4 (0x6B/0x6C) */
-#define F6222_LNA_IREFn_CONT_MASK 0x001Fu
+#define F6222_LNAIREF3_LNA_IREF3_CONT_MASK 0x001Fu
+#define F6222_LNAIREF3_RESET 0x0000u
+
+#define F6222_LNAIREF4_LNA_IREF4_CONT_MASK 0x001Fu
+#define F6222_LNAIREF4_RESET 0x0000u
 
 /* §9.2.7 Register Name: ADC_TEST — reset 0x0000, typical 0x0003 */
 #define F6222_ADC_TEST_CHOPPER_EN (1u << 1)
