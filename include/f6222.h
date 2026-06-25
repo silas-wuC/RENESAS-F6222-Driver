@@ -188,17 +188,36 @@
 #define F6222_TEMP_DATA_ADC_POLL_MAX 1000u
 
 /* ═══════════════════════════════════════════════════════════════
- * SPI Protocol Mode Bits (M[2:0])
+ * §8 SPI Protocol — Mode Selection M[2:0] (Table 5, Table 6)
  * ═══════════════════════════════════════════════════════════════ */
 
-#define F6222_SPI_MODE_LOCAL_REG_READ 0x00u
-#define F6222_SPI_MODE_LOCAL_REG_WRITE 0x01u
-#define F6222_SPI_MODE_GLOBAL_LUT_WRITE 0x02u
-#define F6222_SPI_MODE_GLOBAL_REG_WRITE 0x03u
-#define F6222_SPI_MODE_GLOBAL_FBS 0x04u
-#define F6222_SPI_MODE_LOCAL_FBS 0x05u
-#define F6222_SPI_MODE_LOCAL_LUT_WRITE 0x06u
-#define F6222_SPI_MODE_LOCAL_LUT_READ 0x07u
+#define F6222_SPI_M_LOCAL_REG_READ 0x00u  /* Mode 000 */
+#define F6222_SPI_M_LOCAL_REG_WRITE 0x01u /* Mode 001 */
+#define F6222_SPI_M_GLOBAL_LUT_WRITE 0x02u /* Mode 010 */
+#define F6222_SPI_M_GLOBAL_REG_WRITE 0x03u /* Mode 011 */
+#define F6222_SPI_M_GLOBAL_FBS 0x04u      /* Mode 100 */
+#define F6222_SPI_M_LOCAL_FBS 0x05u       /* Mode 101 */
+#define F6222_SPI_M_LOCAL_LUT_WRITE 0x06u /* Mode 110 */
+#define F6222_SPI_M_LOCAL_LUT_READ 0x07u  /* Mode 111 */
+
+/* RF Load (RL) — Local Register Write / FBS commands (Table 7, Table 11) */
+#define F6222_SPI_RF_LOAD_00 0x00u /* buffer; latch on subsequent RL=01 */
+#define F6222_SPI_RF_LOAD_01 0x01u /* immediate RF channel update */
+
+/* Global FBS command fields (Table 14) */
+#define F6222_SPI_TE_SHIFT 12u
+#define F6222_SPI_TE_MASK (1u << 12)
+#define F6222_SPI_SE_SHIFT 11u
+#define F6222_SPI_SE_MASK (1u << 11)
+#define F6222_SPI_SA_INDEX_SHIFT 8u
+#define F6222_SPI_SA_INDEX_MASK (0x07u << 8)
+#define F6222_SPI_LA_SHIFT 1u
+#define F6222_SPI_LA_MASK (0x7Fu << 1)
+
+/* Chip address ADD[4:0] encoded in SPI command word [28:24] / [12:8] */
+#define F6222_SPI_ADD_SHIFT_LOCAL_WRITE 24u
+#define F6222_SPI_ADD_SHIFT_LOCAL_READ 8u
+#define F6222_SPI_ADD_MASK 0x1Fu
 
 /* ═══════════════════════════════════════════════════════════════
  * Constants
@@ -255,13 +274,6 @@ typedef enum {
     F6222_ERR_SCRATCH_MISMATCH = -3,
     F6222_ERR_ADC_TIMEOUT = -4,
 } f6222_status_t;
-
-/* RF Load field values (used in Local Register Write and FBS commands).
- * BUFFER:    writes CHn_SET to an internal buffer only; RF output stays unchanged
- *            until a subsequent write with RF_LOAD_IMMEDIATE (e.g. f6222_apply_rf()).
- * IMMEDIATE: applies the write to RF output right away (also triggers a bus-wide update). */
-#define F6222_RF_LOAD_BUFFER 0x00u
-#define F6222_RF_LOAD_IMMEDIATE 0x01u
 
 /*
  * Temperature sensor linear model (datasheet §6.5):
