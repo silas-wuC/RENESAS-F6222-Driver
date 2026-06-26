@@ -363,19 +363,20 @@ f6222_status_t f6222_scratch_test(f6222_dev_t* dev, uint8_t chip_addr);
 /* ── Raw Register Access ─────────────────────────────────────── */
 
 /**
- * f6222_reg_write() — local register write (single chip, 40-bit frame).
+ * f6222_local_reg_write() — Local Register Write, Mode 001 (40-bit frame).
  *
  * @param rf_load    F6222_SPI_RF_LOAD_00 (buffer) or F6222_SPI_RF_LOAD_01 (immediate).
  * @param chip_addr  5-bit chip address matching hardware ADD[4:0] pins (0–31).
  * @param reg        7-bit register address.
  * @param val        16-bit data to write.
  */
-f6222_status_t f6222_reg_write(f6222_dev_t* dev, uint8_t rf_load, uint8_t chip_addr, uint8_t reg, uint16_t val);
+f6222_status_t f6222_local_reg_write(f6222_dev_t* dev, uint8_t rf_load, uint8_t chip_addr, uint8_t reg, uint16_t val);
 
 /**
- * f6222_reg_read() — local register read (single chip, 40-bit exchange).
+ * f6222_local_reg_read() — Local Register Read, Mode 000.
+ * 24-bit command word + 16-bit readback (40-bit SPI exchange).
  */
-f6222_status_t f6222_reg_read(f6222_dev_t* dev, uint8_t chip_addr, uint8_t reg, uint16_t* val);
+f6222_status_t f6222_local_reg_read(f6222_dev_t* dev, uint8_t chip_addr, uint8_t reg, uint16_t* val);
 
 /**
  * f6222_reg_write_global() — global register write (Mode 011, 32-bit frame).
