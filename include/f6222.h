@@ -379,12 +379,17 @@ f6222_status_t f6222_local_reg_write(f6222_dev_t* dev, uint8_t rf_load, uint8_t 
 f6222_status_t f6222_local_reg_read(f6222_dev_t* dev, uint8_t chip_addr, uint8_t reg, uint16_t* val);
 
 /**
- * f6222_reg_write_global() — global register write (Mode 011, 32-bit frame).
+ * f6222_global_reg_write() — Global Register Write, Mode 011 (32-bit frame).
+ *
+ * Broadcasts a register write to all chips on the bus, or to one sub-array
+ * when sa_op_enable is true.  RF channels update immediately.
  *
  * @param sa_op_enable  true = sub-array select enabled (SE = 1).
  * @param sa_index      Sub-array index SA[2:0] when sa_op_enable is true.
+ * @param reg           7-bit register address RA[6:0].
+ * @param val           16-bit data D[15:0].
  */
-f6222_status_t f6222_reg_write_global(f6222_dev_t* dev, bool sa_op_enable, uint8_t sa_index, uint8_t reg, uint16_t val);
+f6222_status_t f6222_global_reg_write(f6222_dev_t* dev, bool sa_op_enable, uint8_t sa_index, uint8_t reg, uint16_t val);
 
 /* ── Channel Control ─────────────────────────────────────────── */
 
