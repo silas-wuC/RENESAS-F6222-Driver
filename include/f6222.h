@@ -447,13 +447,13 @@ f6222_status_t f6222_apply_rf(f6222_dev_t* dev, uint8_t chip_addr);
 /* ── LUT / Fast Beam Steering ────────────────────────────────── */
 
 /**
- * f6222_lut_write() — write one entry into the on-chip beam LUT (Mode 110).
+ * f6222_local_lut_write() — Local LUT Write, Mode 110 (40-bit frame).
  *
  * @param ch         Channel number, 1 (CH1) … 16 (CH16).
  * @param lut_addr   LUT entry index, 0–127.
  * @param val        16-bit CHn_SET equivalent value (phase + gain + enable).
  */
-f6222_status_t f6222_lut_write(f6222_dev_t* dev, uint8_t ch, uint8_t chip_addr, uint8_t lut_addr, uint16_t val);
+f6222_status_t f6222_local_lut_write(f6222_dev_t* dev, uint8_t ch, uint8_t chip_addr, uint8_t lut_addr, uint16_t val);
 
 /**
  * f6222_lut_read() — read one LUT entry (Mode 111).
