@@ -231,6 +231,8 @@
 #define F6222_SPI_DATA_HIGH_SHIFT 8u
 #define F6222_SPI_DATA_LOW_MASK 0xFFu /* D[7:0] */
 
+#define F6222_SPI_PAD_BYTE 0x00u /* MOSI padding during read/data clock-out */
+
 /* ═══════════════════════════════════════════════════════════════
  * Constants
  * ═══════════════════════════════════════════════════════════════ */
