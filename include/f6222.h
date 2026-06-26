@@ -223,6 +223,10 @@
 #define F6222_SPI_ADD_SHIFT_LOCAL_READ 8u
 #define F6222_SPI_ADD_MASK 0x1Fu
 
+/* 7-bit address in command byte; bit7 reserved (RA[6:0], LA[6:0]) */
+#define F6222_SPI_REG_ADDR_MASK 0x7Fu
+#define F6222_SPI_LUT_ADDR_MASK 0x7Fu /* LA[7] must be 0 (Table 9) */
+
 /* ═══════════════════════════════════════════════════════════════
  * Constants
  * ═══════════════════════════════════════════════════════════════ */
