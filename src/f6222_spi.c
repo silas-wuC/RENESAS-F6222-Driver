@@ -45,3 +45,21 @@ f6222_status_t f6222_local_reg_read(f6222_dev_t* dev, uint8_t chip_addr, uint8_t
     *val = ((uint16_t)rx[3] << 8) | rx[4];
     return F6222_OK;
 }
+
+f6222_status_t f6222_global_reg_write(f6222_dev_t* dev, bool sa_op_enable, uint8_t sa_index, uint8_t reg,
+                                      uint16_t val) {
+    if (dev == NULL || dev->spi_xfer == NULL) return F6222_ERR_INVALID_ARG;
+    if (sa_index > 7u || reg > 0x7Fu) return F6222_ERR_INVALID_ARG;
+
+    uint8_t tx[4];
+    int ret;
+
+    tx[0] = 0x60u | ((sa_op_enable ? 1u : 0u) << 3) | (sa_index & 0x07u);
+    tx[1] = reg & 0x7Fu;
+    tx[2] = (uint8_t)(val >> 8);
+    tx[3] = (uint8_t)(val & 0xFFu);
+    ret = dev->spi_xfer(dev->ctx, tx, NULL, sizeof(tx));
+    if (ret < 0) return F6222_ERR_SPI;
+
+    return F6222_OK;
+}
