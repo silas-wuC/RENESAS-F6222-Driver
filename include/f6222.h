@@ -400,7 +400,10 @@ f6222_status_t f6222_global_reg_write(f6222_dev_t* dev, bool sa_op_enable, uint8
  * @param ps_set   6-bit PS_SET code, 0–63.  Angle ≈ ps_set × 5.6°.
  *
  * Register CHn_SET (read-modify-write):
- *   CH1 0x22  CH2 0x26  …  CH16 0x5E  (stride 4)
+ *   CH1  0x22   CH2  0x26   CH3  0x2A   CH4  0x2E
+ *   CH5  0x32   CH6  0x36   CH7  0x3A   CH8  0x3E
+ *   CH9  0x42   CH10 0x46   CH11 0x4A   CH12 0x4E
+ *   CH13 0x52   CH14 0x56   CH15 0x5A   CH16 0x5E
  */
 f6222_status_t f6222_set_phase(f6222_dev_t* dev, uint8_t rf_load, uint8_t chip_addr, uint8_t ch, uint8_t ps_set);
 
