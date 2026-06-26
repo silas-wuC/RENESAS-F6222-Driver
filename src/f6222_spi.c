@@ -17,8 +17,8 @@ f6222_status_t f6222_local_reg_write(f6222_dev_t* dev, uint8_t rf_load, uint8_t 
     tx[0] = 0x20u | ((rf_load & 0x03u) << 3);
     tx[1] = chip_addr & F6222_CHIP_ADDR_MASK;
     tx[2] = reg & F6222_SPI_REG_ADDR_MASK;
-    tx[3] = (uint8_t)(val >> 8);
-    tx[4] = (uint8_t)(val & 0xFFu);
+    tx[3] = (uint8_t)(val >> F6222_SPI_DATA_HIGH_SHIFT);
+    tx[4] = (uint8_t)(val & F6222_SPI_DATA_LOW_MASK);
 
     ret = dev->spi_xfer(dev->ctx, tx, NULL, sizeof(tx));
     if (ret < 0) return F6222_ERR_SPI;
@@ -42,7 +42,7 @@ f6222_status_t f6222_local_reg_read(f6222_dev_t* dev, uint8_t chip_addr, uint8_t
     ret = dev->spi_xfer(dev->ctx, tx, rx, sizeof(tx));
     if (ret < 0) return F6222_ERR_SPI;
 
-    *val = ((uint16_t)rx[3] << 8) | rx[4];
+    *val = ((uint16_t)rx[3] << F6222_SPI_DATA_HIGH_SHIFT) | rx[4];
     return F6222_OK;
 }
 
@@ -56,8 +56,8 @@ f6222_status_t f6222_global_reg_write(f6222_dev_t* dev, bool sa_op_enable, uint8
 
     tx[0] = 0x60u | ((sa_op_enable ? 1u : 0u) << 3) | (sa_index & 0x07u);
     tx[1] = reg & F6222_SPI_REG_ADDR_MASK;
-    tx[2] = (uint8_t)(val >> 8);
-    tx[3] = (uint8_t)(val & 0xFFu);
+    tx[2] = (uint8_t)(val >> F6222_SPI_DATA_HIGH_SHIFT);
+    tx[3] = (uint8_t)(val & F6222_SPI_DATA_LOW_MASK);
     ret = dev->spi_xfer(dev->ctx, tx, NULL, sizeof(tx));
     if (ret < 0) return F6222_ERR_SPI;
 
@@ -76,8 +76,8 @@ f6222_status_t f6222_local_lut_write(f6222_dev_t* dev, uint8_t ch, uint8_t chip_
     tx[0] = 0xC0u | ((ch_idx & 0x0Fu) << 1);
     tx[1] = chip_addr & F6222_CHIP_ADDR_MASK;
     tx[2] = lut_addr & F6222_SPI_LUT_ADDR_MASK;
-    tx[3] = (uint8_t)(val >> 8);
-    tx[4] = (uint8_t)(val & 0xFFu);
+    tx[3] = (uint8_t)(val >> F6222_SPI_DATA_HIGH_SHIFT);
+    tx[4] = (uint8_t)(val & F6222_SPI_DATA_LOW_MASK);
     ret = dev->spi_xfer(dev->ctx, tx, NULL, sizeof(tx));
     if (ret < 0) return F6222_ERR_SPI;
 

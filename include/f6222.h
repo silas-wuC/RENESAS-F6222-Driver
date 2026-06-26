@@ -227,6 +227,10 @@
 #define F6222_SPI_REG_ADDR_MASK 0x7Fu
 #define F6222_SPI_LUT_ADDR_MASK 0x7Fu /* LA[7] must be 0 (Table 9) */
 
+/* 16-bit payload D[15:0] in SPI command word */
+#define F6222_SPI_DATA_HIGH_SHIFT 8u
+#define F6222_SPI_DATA_LOW_MASK 0xFFu /* D[7:0] */
+
 /* ═══════════════════════════════════════════════════════════════
  * Constants
  * ═══════════════════════════════════════════════════════════════ */
