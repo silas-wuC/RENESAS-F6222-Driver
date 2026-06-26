@@ -63,3 +63,23 @@ f6222_status_t f6222_global_reg_write(f6222_dev_t* dev, bool sa_op_enable, uint8
 
     return F6222_OK;
 }
+
+f6222_status_t f6222_local_lut_write(f6222_dev_t* dev, uint8_t ch, uint8_t chip_addr, uint8_t lut_addr, uint16_t val) {
+    if (dev == NULL || dev->spi_xfer == NULL) return F6222_ERR_INVALID_ARG;
+    if (!F6222_CH_IS_VALID(ch) || lut_addr >= F6222_LUT_ENTRIES || chip_addr > F6222_CHIP_ADDR_MAX)
+        return F6222_ERR_INVALID_ARG;
+
+    uint8_t tx[5];
+    uint8_t ch_idx = F6222_CH_TO_IDX(ch);
+    int ret;
+
+    tx[0] = 0xC0u | ((ch_idx & 0x0Fu) << 1);
+    tx[1] = chip_addr & F6222_CHIP_ADDR_MASK;
+    tx[2] = lut_addr & 0x7Fu;
+    tx[3] = (uint8_t)(val >> 8);
+    tx[4] = (uint8_t)(val & 0xFFu);
+    ret = dev->spi_xfer(dev->ctx, tx, NULL, sizeof(tx));
+    if (ret < 0) return F6222_ERR_SPI;
+
+    return F6222_OK;
+}
