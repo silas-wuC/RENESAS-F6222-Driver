@@ -279,6 +279,13 @@ typedef enum {
     F6222_ERR_ADC_TIMEOUT = -4,
 } f6222_status_t;
 
+/* RF Load field values (used in Local Register Write and FBS commands).
+ * BUFFER:    writes CHn_SET to an internal buffer only; RF output stays unchanged
+ *            until f6222_apply_rf() broadcasts RF_TRIG to latch all buffered settings.
+ * IMMEDIATE: applies the write to RF output right away (also triggers a bus-wide update). */
+#define F6222_RF_LOAD_BUFFER 0x00u
+#define F6222_RF_LOAD_IMMEDIATE 0x01u
+
 /*
  * Temperature sensor linear model (datasheet §6.5):
  *   code = 1.3 * (T − T0) + C0
