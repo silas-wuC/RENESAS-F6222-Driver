@@ -96,6 +96,15 @@ f6222_status_t f6222_local_lut_read(f6222_dev_t* dev, uint8_t lut_ch, uint8_t ch
 
     uint8_t ch_idx = F6222_CH_TO_IDX(lut_ch);
     tx[0] = (F6222_SPI_M_LOCAL_LUT_READ << 5) | ((ch_idx & 0x0Fu) << 1);
+    tx[1] = chip_addr & F6222_CHIP_ADDR_MASK;
+    tx[2] = lut_addr & F6222_SPI_LUT_ADDR_MASK;
+    tx[3] = F6222_SPI_PAD_BYTE;
+    tx[4] = F6222_SPI_PAD_BYTE;
+
+    ret = dev->spi_xfer(dev->ctx, tx, rx, sizeof(tx));
+    if (ret < 0) return F6222_ERR_SPI;
+
+    *val = ((uint16_t)rx[3] << F6222_SPI_DATA_HIGH_SHIFT) | rx[4];
 
     return F6222_OK;
 }

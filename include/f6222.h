@@ -486,7 +486,7 @@ f6222_status_t f6222_local_lut_write(f6222_dev_t* dev, uint8_t ch, uint8_t chip_
  * Each entry is 16-bit CHn_SET equivalent (phase + gain + enable).
  * Continuous read is not supported.
  *
- * @param ch         Channel number, 1 (CH1) … 16 (CH16).
+ * @param lut_ch     Channel number, 1 (CH1) … 16 (CH16).
  * @param chip_addr  5-bit chip address matching hardware ADD[4:0] pins (0–31).
  * @param lut_addr   LUT entry index, 0–127.
  * @param val        Receives the 16-bit LUT data.
