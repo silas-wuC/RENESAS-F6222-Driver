@@ -466,9 +466,18 @@ f6222_status_t f6222_apply_rf(f6222_dev_t* dev, uint8_t chip_addr);
 f6222_status_t f6222_local_lut_write(f6222_dev_t* dev, uint8_t ch, uint8_t chip_addr, uint8_t lut_addr, uint16_t val);
 
 /**
- * f6222_lut_read() — read one LUT entry (Mode 111).
+ * f6222_local_lut_read() — Local LUT Read, Mode 111 (§8.4).
+ *
+ * 24-bit command word + 16-bit readback (40-bit SPI exchange).
+ * Each entry is 16-bit CHn_SET equivalent (phase + gain + enable).
+ * Continuous read is not supported.
+ *
+ * @param ch         Channel number, 1 (CH1) … 16 (CH16).
+ * @param chip_addr  5-bit chip address matching hardware ADD[4:0] pins (0–31).
+ * @param lut_addr   LUT entry index, 0–127.
+ * @param val        Receives the 16-bit LUT data.
  */
-f6222_status_t f6222_lut_read(f6222_dev_t* dev, uint8_t ch, uint8_t chip_addr, uint8_t lut_addr, uint16_t* val);
+f6222_status_t f6222_local_lut_read(f6222_dev_t* dev, uint8_t ch, uint8_t chip_addr, uint8_t lut_addr, uint16_t* val);
 
 /**
  * f6222_lut_write_global() — broadcast LUT entry to all chips (Mode 010).
