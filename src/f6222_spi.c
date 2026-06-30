@@ -86,8 +86,8 @@ f6222_status_t f6222_local_lut_write(f6222_dev_t* dev, uint8_t ch, uint8_t chip_
 
 f6222_status_t f6222_local_lut_read(f6222_dev_t* dev, uint8_t lut_ch, uint8_t chip_addr, uint8_t lut_addr,
                                     uint16_t* val) {
-    if (dev == NULL || dev->spi_xfer == NULL || val == NULL) return F6222_ERR_INVALID_ARG;
-    if (!F6222_CH_IS_VALID(lut_ch) || lut_addr >= F6222_LUT_ENTRIES || chip_addr > F6222_CHIP_ADDR_MAX)
+    if (dev == NULL || dev->spi_xfer == NULL) return F6222_ERR_INVALID_ARG;
+    if (!F6222_CH_IS_VALID(lut_ch) || chip_addr > F6222_CHIP_ADDR_MAX || lut_addr >= F6222_LUT_ENTRIES || val == NULL)
         return F6222_ERR_INVALID_ARG;
 
     uint8_t tx[5];
