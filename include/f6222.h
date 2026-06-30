@@ -209,46 +209,14 @@
  * data after the command word (driver uses 40-bit SPI exchange).
  * ═══════════════════════════════════════════════════════════════ */
 
-#define F6222_SPI_MODE_SHIFT 5u
-#define F6222_SPI_MODE_B0(m) ((uint8_t)((m) << F6222_SPI_MODE_SHIFT))
-
-/* Table 5 — 000: Local Register Read */
-#define F6222_SPI_M_LOCAL_REG_READ 0x00u
-#define F6222_SPI_CMD_BITS_LOCAL_REG_READ 24u
-#define F6222_SPI_B0_LOCAL_REG_READ F6222_SPI_MODE_B0(F6222_SPI_M_LOCAL_REG_READ)
-
-/* Table 5 — 001: Local Register Write */
-#define F6222_SPI_M_LOCAL_REG_WRITE 0x01u
-#define F6222_SPI_CMD_BITS_LOCAL_REG_WRITE 40u
-#define F6222_SPI_B0_LOCAL_REG_WRITE F6222_SPI_MODE_B0(F6222_SPI_M_LOCAL_REG_WRITE)
-
-/* Table 5 — 010: Global LUT Write */
-#define F6222_SPI_M_GLOBAL_LUT_WRITE 0x02u
-#define F6222_SPI_CMD_BITS_GLOBAL_LUT_WRITE 32u
-#define F6222_SPI_B0_GLOBAL_LUT_WRITE F6222_SPI_MODE_B0(F6222_SPI_M_GLOBAL_LUT_WRITE)
-
-/* Table 5 — 011: Global Register Write */
-#define F6222_SPI_M_GLOBAL_REG_WRITE 0x03u
-#define F6222_SPI_CMD_BITS_GLOBAL_REG_WRITE 32u
-#define F6222_SPI_B0_GLOBAL_REG_WRITE F6222_SPI_MODE_B0(F6222_SPI_M_GLOBAL_REG_WRITE)
-
-/* Table 6 — 100: Global FBS (not listed in Table 5) */
-#define F6222_SPI_M_GLOBAL_FBS 0x04u
-#define F6222_SPI_B0_GLOBAL_FBS F6222_SPI_MODE_B0(F6222_SPI_M_GLOBAL_FBS)
-
-/* Table 6 — 101: Local FBS (not listed in Table 5) */
-#define F6222_SPI_M_LOCAL_FBS 0x05u
-#define F6222_SPI_B0_LOCAL_FBS F6222_SPI_MODE_B0(F6222_SPI_M_LOCAL_FBS)
-
-/* Table 5 — 110: Local LUT Write */
-#define F6222_SPI_M_LOCAL_LUT_WRITE 0x06u
-#define F6222_SPI_CMD_BITS_LOCAL_LUT_WRITE 40u
-#define F6222_SPI_B0_LOCAL_LUT_WRITE F6222_SPI_MODE_B0(F6222_SPI_M_LOCAL_LUT_WRITE)
-
-/* Table 5 — 111: Local LUT Read */
-#define F6222_SPI_M_LOCAL_LUT_READ 0x07u
-#define F6222_SPI_CMD_BITS_LOCAL_LUT_READ 24u
-#define F6222_SPI_B0_LOCAL_LUT_READ F6222_SPI_MODE_B0(F6222_SPI_M_LOCAL_LUT_READ)
+#define F6222_SPI_M_LOCAL_REG_READ 0x00u   /* 000 — Local Register Read, 24-bit  */
+#define F6222_SPI_M_LOCAL_REG_WRITE 0x01u  /* 001 — Local Register Write, 40-bit */
+#define F6222_SPI_M_GLOBAL_LUT_WRITE 0x02u /* 010 — Global LUT Write, 32-bit     */
+#define F6222_SPI_M_GLOBAL_REG_WRITE 0x03u /* 011 — Global Register Write, 32-bit*/
+#define F6222_SPI_M_GLOBAL_FBS 0x04u       /* 100 — Global FBS (Table 6)         */
+#define F6222_SPI_M_LOCAL_FBS 0x05u        /* 101 — Local FBS (Table 6)          */
+#define F6222_SPI_M_LOCAL_LUT_WRITE 0x06u  /* 110 — Local LUT Write, 40-bit      */
+#define F6222_SPI_M_LOCAL_LUT_READ 0x07u   /* 111 — Local LUT Read, 24-bit       */
 
 /* RF Load (RL) — Local Register Write / FBS commands (Table 7, Table 11) */
 #define F6222_SPI_RF_LOAD_00 0x00u /* buffer; latch on subsequent RL=01 */
