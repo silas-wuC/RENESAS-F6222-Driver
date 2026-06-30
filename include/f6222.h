@@ -248,6 +248,9 @@
 
 #define F6222_SPI_PAD_BYTE 0x00u /* MOSI padding during read/data clock-out */
 
+/* Global LUT Write (§8.7) — LM bit in command byte 0 */
+#define F6222_SPI_LM_SHIFT 4u
+
 /* ═══════════════════════════════════════════════════════════════
  * Constants
  * ═══════════════════════════════════════════════════════════════ */
@@ -441,10 +444,25 @@ f6222_status_t f6222_local_lut_read(f6222_dev_t* dev, uint8_t lut_ch, uint8_t ch
 f6222_status_t f6222_global_reg_write(f6222_dev_t* dev, bool sa_op_enable, uint8_t sa_index, uint8_t reg, uint16_t val);
 
 /**
- * f6222_lut_write_global() — Global LUT Write, Mode 010 (32-bit frame).
+ * f6222_lut_write_global() — Global LUT Write, Mode 010 (§8.7).
+ *
+ * Broadcasts a LUT write to all chips on the bus (no chip address).
+ * 32-bit command word plus optional continuous 16-bit data in one CS transaction.
+ *
+ * LM (`lut_all_channels`):
+ *   false — write `val` (+ extras) starting at one channel/LUT address; hardware
+ *           auto-advances to the next channel, then the next LUT address.
+ *   true  — write to all channels at `lut_addr`; each extra word advances LUT addr.
+ *
+ * @param lut_all_channels  LM bit: false = one channel, true = all channels.
+ * @param ch                Channel 1..16; validated only when lut_all_channels is false.
+ * @param lut_addr          Starting LUT entry, 0..127.
+ * @param val               First 16-bit CHn_SET data in the command word.
+ * @param extra_vals        Additional 16-bit data after val; NULL when extra_count is 0.
+ * @param extra_count       Number of extra 16-bit words (not including val).
  */
 f6222_status_t f6222_lut_write_global(f6222_dev_t* dev, bool lut_all_channels, uint8_t ch, uint8_t lut_addr,
-                                      uint16_t val);
+                                      uint16_t val, const uint16_t* extra_vals, size_t extra_count);
 
 /* ── Channel Control ─────────────────────────────────────────── */
 
