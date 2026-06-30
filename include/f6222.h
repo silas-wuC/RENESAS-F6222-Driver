@@ -198,25 +198,25 @@
  *
  *   M[2:0]  Mode Description         R/W    Memory Location  Scope   Cmd (bits)
  *   ──────  ───────────────────────  ─────  ───────────────  ──────  ──────────
- *   000     Local Register Read      Read   Static Registers Local   24
  *   001     Local Register Write     Write  Static Registers Local   40
- *   010     Global LUT Write         Write  LUT              Global  32
- *   011     Global Register Write    Write  Static Registers Global  32
+ *   000     Local Register Read      Read   Static Registers Local   24
  *   110     Local LUT Write          Write  LUT              Local   40
  *   111     Local LUT Read           Read   LUT              Local   24
+ *   011     Global Register Write    Write  Static Registers Global  32
+ *   010     Global LUT Write         Write  LUT              Global  32
  *
  * M[2:0] in SPI command byte 0, bits [7:5].  Read modes clock 16-bit
  * data after the command word (driver uses 40-bit SPI exchange).
  * ═══════════════════════════════════════════════════════════════ */
 
-#define F6222_SPI_M_LOCAL_REG_READ 0x00u   /* 000 — Local Register Read, 24-bit  */
 #define F6222_SPI_M_LOCAL_REG_WRITE 0x01u  /* 001 — Local Register Write, 40-bit */
-#define F6222_SPI_M_GLOBAL_LUT_WRITE 0x02u /* 010 — Global LUT Write, 32-bit     */
-#define F6222_SPI_M_GLOBAL_REG_WRITE 0x03u /* 011 — Global Register Write, 32-bit*/
-#define F6222_SPI_M_GLOBAL_FBS 0x04u       /* 100 — Global FBS (Table 6)         */
-#define F6222_SPI_M_LOCAL_FBS 0x05u        /* 101 — Local FBS (Table 6)          */
+#define F6222_SPI_M_LOCAL_REG_READ 0x00u   /* 000 — Local Register Read, 24-bit  */
 #define F6222_SPI_M_LOCAL_LUT_WRITE 0x06u  /* 110 — Local LUT Write, 40-bit      */
 #define F6222_SPI_M_LOCAL_LUT_READ 0x07u   /* 111 — Local LUT Read, 24-bit       */
+#define F6222_SPI_M_GLOBAL_REG_WRITE 0x03u /* 011 — Global Register Write, 32-bit*/
+#define F6222_SPI_M_GLOBAL_LUT_WRITE 0x02u /* 010 — Global LUT Write, 32-bit     */
+#define F6222_SPI_M_GLOBAL_FBS 0x04u       /* 100 — Global FBS (Table 6)         */
+#define F6222_SPI_M_LOCAL_FBS 0x05u        /* 101 — Local FBS (Table 6)          */
 
 /* RF Load (RL) — Local Register Write / FBS commands (Table 7, Table 11) */
 #define F6222_SPI_RF_LOAD_00 0x00u /* buffer; latch on subsequent RL=01 */
@@ -385,7 +385,7 @@ f6222_status_t f6222_init(f6222_dev_t* dev, uint8_t chip_addr);
  */
 f6222_status_t f6222_scratch_test(f6222_dev_t* dev, uint8_t chip_addr);
 
-/* ── Raw Register Access ─────────────────────────────────────── */
+/* ── SPI Read/Write Modes (Table 5) ─────────────────────────── */
 
 /**
  * f6222_local_reg_write() — Local Register Write, Mode 001 (40-bit frame).
@@ -404,6 +404,30 @@ f6222_status_t f6222_local_reg_write(f6222_dev_t* dev, uint8_t rf_load, uint8_t 
 f6222_status_t f6222_local_reg_read(f6222_dev_t* dev, uint8_t chip_addr, uint8_t reg, uint16_t* val);
 
 /**
+ * f6222_local_lut_write() — Local LUT Write, Mode 110 (40-bit frame).
+ *
+ * @param ch         Channel number, 1 (CH1) … 16 (CH16).
+ * @param lut_addr   LUT entry index, 0–127.
+ * @param val        16-bit CHn_SET equivalent value (phase + gain + enable).
+ */
+f6222_status_t f6222_local_lut_write(f6222_dev_t* dev, uint8_t ch, uint8_t chip_addr, uint8_t lut_addr, uint16_t val);
+
+/**
+ * f6222_local_lut_read() — Local LUT Read, Mode 111 (§8.4).
+ *
+ * 24-bit command word + 16-bit readback (40-bit SPI exchange).
+ * Each entry is 16-bit CHn_SET equivalent (phase + gain + enable).
+ * Continuous read is not supported.
+ *
+ * @param lut_ch     Channel number, 1 (CH1) … 16 (CH16).
+ * @param chip_addr  5-bit chip address matching hardware ADD[4:0] pins (0–31).
+ * @param lut_addr   LUT entry index, 0–127.
+ * @param val        Receives the 16-bit LUT data.
+ */
+f6222_status_t f6222_local_lut_read(f6222_dev_t* dev, uint8_t lut_ch, uint8_t chip_addr, uint8_t lut_addr,
+                                    uint16_t* val);
+
+/**
  * f6222_global_reg_write() — Global Register Write, Mode 011 (32-bit frame).
  *
  * Broadcasts a register write to all chips on the bus, or to one sub-array
@@ -415,6 +439,12 @@ f6222_status_t f6222_local_reg_read(f6222_dev_t* dev, uint8_t chip_addr, uint8_t
  * @param val           16-bit data D[15:0].
  */
 f6222_status_t f6222_global_reg_write(f6222_dev_t* dev, bool sa_op_enable, uint8_t sa_index, uint8_t reg, uint16_t val);
+
+/**
+ * f6222_lut_write_global() — Global LUT Write, Mode 010 (32-bit frame).
+ */
+f6222_status_t f6222_lut_write_global(f6222_dev_t* dev, bool lut_all_channels, uint8_t ch, uint8_t lut_addr,
+                                      uint16_t val);
 
 /* ── Channel Control ─────────────────────────────────────────── */
 
@@ -469,37 +499,7 @@ f6222_status_t f6222_set_global_pwd(f6222_dev_t* dev, uint8_t chip_addr, bool po
  */
 f6222_status_t f6222_apply_rf(f6222_dev_t* dev, uint8_t chip_addr);
 
-/* ── LUT / Fast Beam Steering ────────────────────────────────── */
-
-/**
- * f6222_local_lut_write() — Local LUT Write, Mode 110 (40-bit frame).
- *
- * @param ch         Channel number, 1 (CH1) … 16 (CH16).
- * @param lut_addr   LUT entry index, 0–127.
- * @param val        16-bit CHn_SET equivalent value (phase + gain + enable).
- */
-f6222_status_t f6222_local_lut_write(f6222_dev_t* dev, uint8_t ch, uint8_t chip_addr, uint8_t lut_addr, uint16_t val);
-
-/**
- * f6222_local_lut_read() — Local LUT Read, Mode 111 (§8.4).
- *
- * 24-bit command word + 16-bit readback (40-bit SPI exchange).
- * Each entry is 16-bit CHn_SET equivalent (phase + gain + enable).
- * Continuous read is not supported.
- *
- * @param lut_ch     Channel number, 1 (CH1) … 16 (CH16).
- * @param chip_addr  5-bit chip address matching hardware ADD[4:0] pins (0–31).
- * @param lut_addr   LUT entry index, 0–127.
- * @param val        Receives the 16-bit LUT data.
- */
-f6222_status_t f6222_local_lut_read(f6222_dev_t* dev, uint8_t lut_ch, uint8_t chip_addr, uint8_t lut_addr,
-                                    uint16_t* val);
-
-/**
- * f6222_lut_write_global() — broadcast LUT entry to all chips (Mode 010).
- */
-f6222_status_t f6222_lut_write_global(f6222_dev_t* dev, bool lut_all_channels, uint8_t ch, uint8_t lut_addr,
-                                      uint16_t val);
+/* ── Fast Beam Steering (Table 6) ────────────────────────────── */
 
 /**
  * f6222_fbs_local() — switch this chip to a stored LUT beam state (Mode 101).
