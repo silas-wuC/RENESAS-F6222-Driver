@@ -237,9 +237,10 @@
 #define F6222_SPI_ADD_SHIFT_LOCAL_READ 8u
 #define F6222_SPI_ADD_MASK 0x1Fu
 
-/* 7-bit address in command byte; bit7 reserved (RA[6:0], LA[6:0]) */
+/* 7-bit register address RA[6:0]; bit7 reserved */
 #define F6222_SPI_REG_ADDR_MASK 0x7Fu
-#define F6222_SPI_LUT_ADDR_MASK 0x7Fu /* LA[7] must be 0 (Table 9) */
+/* 7-bit LUT address LA[6:0]; LA[7] must be 0 (Table 9/10) */
+#define F6222_SPI_LUT_ADDR_MASK 0x7Fu
 
 /* 16-bit payload D[15:0] in SPI command word */
 #define F6222_SPI_DATA_HIGH_SHIFT 8u
