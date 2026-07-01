@@ -27,7 +27,7 @@ f6222_status_t f6222_scratch_test(f6222_dev_t* dev, uint8_t chip_addr) {
     for (i = 0; i < sizeof(f6222_scratch_patterns) / sizeof(f6222_scratch_patterns[0]); i++) {
         uint16_t pattern = f6222_scratch_patterns[i];
 
-        st = f6222_reg_write(dev, F6222_RF_LOAD_IMMEDIATE, chip_addr, F6222_REG_SCRATCH, pattern);
+        st = f6222_local_reg_write(dev, F6222_RF_LOAD_IMMEDIATE, chip_addr, F6222_REG_SCRATCH, pattern);
         if (st != F6222_OK) return st;
 
         st = f6222_reg_read(dev, chip_addr, F6222_REG_SCRATCH, &readback);
@@ -82,8 +82,8 @@ static f6222_status_t f6222_set_init_pattern(f6222_dev_t* dev, uint8_t chip_addr
     size_t i;
 
     for (i = 0; i < F6222_INIT_PATTERN_COUNT; i++) {
-        st = f6222_reg_write(dev, F6222_RF_LOAD_IMMEDIATE, chip_addr, f6222_init_pattern[i].reg,
-                             f6222_init_pattern[i].val);
+        st = f6222_local_reg_write(dev, F6222_RF_LOAD_IMMEDIATE, chip_addr, f6222_init_pattern[i].reg,
+                                   f6222_init_pattern[i].val);
         if (st != F6222_OK) return st;
     }
 
