@@ -489,13 +489,6 @@ f6222_status_t f6222_set_phase(f6222_dev_t* dev, uint8_t rf_load, uint8_t chip_a
 f6222_status_t f6222_set_gain(f6222_dev_t* dev, uint8_t rf_load, uint8_t chip_addr, uint8_t ch, uint8_t vga_set);
 
 /**
- * f6222_set_channel_enable() — power a channel on or off.
- *
- * Patches CH_PWD [0] only (0 = enabled, 1 = powered down).
- */
-f6222_status_t f6222_set_channel_enable(f6222_dev_t* dev, uint8_t rf_load, uint8_t chip_addr, uint8_t ch, bool enable);
-
-/**
  * f6222_set_lna_sw() — enable or bypass the common input driver amplifier (DA).
  *
  * @param lna_sw_on  true = DA enabled (nominal gain), false = DA bypassed (high linearity).

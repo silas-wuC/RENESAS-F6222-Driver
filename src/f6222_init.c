@@ -90,7 +90,8 @@ static f6222_status_t f6222_set_init_pattern(f6222_dev_t* dev, uint8_t chip_addr
     return F6222_OK;
 }
 
-f6222_status_t f6222_set_channel_enable(f6222_dev_t* dev, uint8_t rf_load, uint8_t chip_addr, uint8_t ch, bool enable) {
+static f6222_status_t f6222_set_channel_enable(f6222_dev_t* dev, uint8_t rf_load, uint8_t chip_addr, uint8_t ch,
+                                               bool enable) {
     if (dev == NULL || dev->spi_xfer == NULL) return F6222_ERR_INVALID_ARG;
     if (rf_load > F6222_RF_LOAD_IMMEDIATE || chip_addr > F6222_CHIP_ADDR_MAX || !F6222_CH_IS_VALID(ch))
         return F6222_ERR_INVALID_ARG;
