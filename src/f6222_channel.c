@@ -109,3 +109,15 @@ f6222_status_t f6222_set_channel_enable(f6222_dev_t* dev, uint8_t rf_load, uint8
 
     return F6222_OK;
 }
+
+f6222_status_t f6222_apply_rf(f6222_dev_t* dev, uint8_t chip_addr) {
+    if (dev == NULL || dev->spi_xfer == NULL) return F6222_ERR_INVALID_ARG;
+    if (chip_addr > F6222_CHIP_ADDR_MAX) return F6222_ERR_INVALID_ARG;
+
+    f6222_status_t st;
+
+    st = f6222_local_reg_write(dev, F6222_RF_LOAD_IMMEDIATE, chip_addr, F6222_REG_SCRATCH, F6222_SCRATCH_RESET);
+    if (st != F6222_OK) return st;
+
+    return F6222_OK;
+}
