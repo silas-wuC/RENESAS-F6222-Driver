@@ -30,7 +30,7 @@ f6222_status_t f6222_scratch_test(f6222_dev_t* dev, uint8_t chip_addr) {
         st = f6222_local_reg_write(dev, F6222_RF_LOAD_IMMEDIATE, chip_addr, F6222_REG_SCRATCH, pattern);
         if (st != F6222_OK) return st;
 
-        st = f6222_reg_read(dev, chip_addr, F6222_REG_SCRATCH, &readback);
+        st = f6222_local_reg_read(dev, chip_addr, F6222_REG_SCRATCH, &readback);
         if (st != F6222_OK) return st;
 
         if (readback != pattern) return F6222_ERR_SCRATCH_MISMATCH;
