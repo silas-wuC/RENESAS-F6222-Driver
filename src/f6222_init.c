@@ -5,35 +5,11 @@
  * SPI trace — Logic Analyzer capture exported as F6222_INIT.csv (76 writes).
  * Not an independent translation of datasheet prose.
  *
- * f6222_init() sequence: wait_ready → scratch_test → set_init_pattern (76 writes)
+ * f6222_init() sequence: scratch_test → set_init_pattern (76 writes)
  * → f6222_set_channel_enable(false) for CH1–CH8.
  */
 
 #include "f6222.h"
-
-f6222_status_t f6222_wait_ready(f6222_dev_t* dev, uint8_t chip_addr) {
-    if (dev == NULL || dev->spi_xfer == NULL) return F6222_ERR_INVALID_ARG;
-    if (chip_addr > F6222_CHIP_ADDR_MAX) return F6222_ERR_INVALID_ARG;
-
-    f6222_status_t st;
-    uint16_t val = 0;
-    uint32_t polls = 0;
-    uint32_t matched = 0;
-
-    for (polls = 0; polls < F6222_READY_POLL_MAX; polls++) {
-        st = f6222_reg_read(dev, chip_addr, F6222_REG_SILICON_ID, &val);
-        if (st != F6222_OK) return st;
-
-        if (val == F6222_SILICON_ID) {
-            matched++;
-            if (matched >= F6222_READY_CONFIRM_READS) return F6222_OK;
-        } else {
-            matched = 0;
-        }
-    }
-
-    return (matched > 0) ? F6222_ERR_SILICON_ID : F6222_ERR_READY_TIMEOUT;
-}
 
 /* 0x2474 / 0x9879 = TMYtek company ID 24749879, split into two 16-bit test values */
 static const uint16_t f6222_scratch_patterns[] = {
@@ -119,9 +95,6 @@ f6222_status_t f6222_init(f6222_dev_t* dev, uint8_t chip_addr) {
     if (chip_addr > F6222_CHIP_ADDR_MAX) return F6222_ERR_INVALID_ARG;
 
     f6222_status_t st;
-
-    st = f6222_wait_ready(dev, chip_addr);
-    if (st != F6222_OK) return st;
 
     st = f6222_scratch_test(dev, chip_addr);
     if (st != F6222_OK) return st;
