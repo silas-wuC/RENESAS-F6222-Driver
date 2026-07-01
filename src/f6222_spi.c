@@ -6,6 +6,26 @@
 
 #include "f6222.h"
 
+/* CH1: bias=0x20 … CH16: bias=0x5C; bias/ctrl/set stride +4 per channel */
+const f6222_ch_regs_t f6222_ch_reg_map[F6222_NUM_CHANNELS] = {
+    [0] = {.ch_bias = 0x20u, .ch_ctrl = 0x21u, .ch_set = 0x22u},
+    [1] = {.ch_bias = 0x24u, .ch_ctrl = 0x25u, .ch_set = 0x26u},
+    [2] = {.ch_bias = 0x28u, .ch_ctrl = 0x29u, .ch_set = 0x2Au},
+    [3] = {.ch_bias = 0x2Cu, .ch_ctrl = 0x2Du, .ch_set = 0x2Eu},
+    [4] = {.ch_bias = 0x30u, .ch_ctrl = 0x31u, .ch_set = 0x32u},
+    [5] = {.ch_bias = 0x34u, .ch_ctrl = 0x35u, .ch_set = 0x36u},
+    [6] = {.ch_bias = 0x38u, .ch_ctrl = 0x39u, .ch_set = 0x3Au},
+    [7] = {.ch_bias = 0x3Cu, .ch_ctrl = 0x3Du, .ch_set = 0x3Eu},
+    [8] = {.ch_bias = 0x40u, .ch_ctrl = 0x41u, .ch_set = 0x42u},
+    [9] = {.ch_bias = 0x44u, .ch_ctrl = 0x45u, .ch_set = 0x46u},
+    [10] = {.ch_bias = 0x48u, .ch_ctrl = 0x49u, .ch_set = 0x4Au},
+    [11] = {.ch_bias = 0x4Cu, .ch_ctrl = 0x4Du, .ch_set = 0x4Eu},
+    [12] = {.ch_bias = 0x50u, .ch_ctrl = 0x51u, .ch_set = 0x52u},
+    [13] = {.ch_bias = 0x54u, .ch_ctrl = 0x55u, .ch_set = 0x56u},
+    [14] = {.ch_bias = 0x58u, .ch_ctrl = 0x59u, .ch_set = 0x5Au},
+    [15] = {.ch_bias = 0x5Cu, .ch_ctrl = 0x5Du, .ch_set = 0x5Eu},
+};
+
 f6222_status_t f6222_local_reg_write(f6222_dev_t* dev, uint8_t rf_load, uint8_t chip_addr, uint8_t reg, uint16_t val) {
     if (dev == NULL || dev->spi_xfer == NULL) return F6222_ERR_INVALID_ARG;
     if (rf_load > F6222_RF_LOAD_IMMEDIATE || chip_addr > F6222_CHIP_ADDR_MAX || reg > F6222_SPI_REG_ADDR_MASK)
