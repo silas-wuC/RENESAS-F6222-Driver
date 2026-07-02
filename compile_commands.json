@@ -16,6 +16,11 @@
   },
   {
     "directory": "/home/ubuntu/Code/RENESAS-F6222-Driver",
+    "command": "gcc -std=c99 -Wall -Wextra -Wpedantic -Os -ffunction-sections -fdata-sections -MMD -MP -I include -c src/f6222_adc.c -o src/f6222_adc.o",
+    "file": "src/f6222_adc.c"
+  },
+  {
+    "directory": "/home/ubuntu/Code/RENESAS-F6222-Driver",
     "command": "gcc -std=c99 -Wall -Wextra -Wpedantic -Os -ffunction-sections -fdata-sections -MMD -MP -I include -fsyntax-only include/f6222.h",
     "file": "include/f6222.h"
   }
