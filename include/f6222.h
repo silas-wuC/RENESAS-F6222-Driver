@@ -483,10 +483,10 @@ f6222_status_t f6222_set_phase(f6222_dev_t* dev, uint8_t rf_load, uint8_t chip_a
 /**
  * f6222_set_gain() — set the gain of one RF channel.
  *
- * @param vga_set  6-bit gain code (VGA_SET), 0–63.
- *               Codes 0–31 = lower range, 32–63 = upper range; step ≈ 0.45 dB.
+ * @param vga_step  6-bit gain step index, 0–63 (maps to CHn_SET VGA_SET).
+ *                  Step size ≈ 0.45 dB; codes 0–31 lower range, 32–63 upper.
  */
-f6222_status_t f6222_set_gain(f6222_dev_t* dev, uint8_t rf_load, uint8_t chip_addr, uint8_t ch, uint8_t vga_set);
+f6222_status_t f6222_set_gain(f6222_dev_t* dev, uint8_t rf_load, uint8_t chip_addr, uint8_t ch, uint8_t vga_step);
 
 /**
  * f6222_set_channel_enable() — power a channel on or off.
