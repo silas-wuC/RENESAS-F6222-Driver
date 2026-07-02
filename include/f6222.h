@@ -470,7 +470,8 @@ f6222_status_t f6222_lut_write_global(f6222_dev_t* dev, bool lut_all_channels, u
  * f6222_set_phase() — set the phase of one RF channel.
  *
  * @param ch       Channel number, 1 (CH1) … 16 (CH16), datasheet 1-based.
- * @param ps_set   6-bit PS_SET code, 0–63.  Angle ≈ ps_set × 5.6°.
+ * @param ps_step  6-bit phase step index, 0–63 (maps to CHn_SET PS_SET).
+ *                 Step size ≈ 5.6°; angle ≈ ps_step × 5.6°.
  *
  * Register CHn_SET (read-modify-write):
  *   CH1  0x22   CH2  0x26   CH3  0x2A   CH4  0x2E
@@ -478,7 +479,7 @@ f6222_status_t f6222_lut_write_global(f6222_dev_t* dev, bool lut_all_channels, u
  *   CH9  0x42   CH10 0x46   CH11 0x4A   CH12 0x4E
  *   CH13 0x52   CH14 0x56   CH15 0x5A   CH16 0x5E
  */
-f6222_status_t f6222_set_phase(f6222_dev_t* dev, uint8_t rf_load, uint8_t chip_addr, uint8_t ch, uint8_t ps_set);
+f6222_status_t f6222_set_phase(f6222_dev_t* dev, uint8_t rf_load, uint8_t chip_addr, uint8_t ch, uint8_t ps_step);
 
 /**
  * f6222_set_gain() — set the gain of one RF channel.

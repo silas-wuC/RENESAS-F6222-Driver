@@ -4,11 +4,11 @@
 
 #include "f6222.h"
 
-f6222_status_t f6222_set_phase(f6222_dev_t* dev, uint8_t rf_load, uint8_t chip_addr, uint8_t ch, uint8_t ps_set) {
+f6222_status_t f6222_set_phase(f6222_dev_t* dev, uint8_t rf_load, uint8_t chip_addr, uint8_t ch, uint8_t ps_step) {
     if (dev == NULL || dev->spi_xfer == NULL) return F6222_ERR_INVALID_ARG;
     if (chip_addr > F6222_CHIP_ADDR_MAX) return F6222_ERR_INVALID_ARG;
     if (!F6222_CH_IS_VALID(ch)) return F6222_ERR_INVALID_ARG;
-    if (ps_set > F6222_CHn_SET_PS_SET_MAX) return F6222_ERR_INVALID_ARG;
+    if (ps_step > F6222_CHn_SET_PS_SET_MAX) return F6222_ERR_INVALID_ARG;
     if (rf_load > F6222_RF_LOAD_IMMEDIATE) return F6222_ERR_INVALID_ARG;
 
     f6222_status_t st;
@@ -20,7 +20,7 @@ f6222_status_t f6222_set_phase(f6222_dev_t* dev, uint8_t rf_load, uint8_t chip_a
     if (st != F6222_OK) return st;
 
     /* Patch PS_SET [15:10] only; leave VGA_SET, LNA_SW, and CH_PWD unchanged. */
-    readback = (readback & (~F6222_CHn_SET_PS_SET_MASK)) | ((uint16_t)ps_set << F6222_CHn_SET_PS_SET_SHIFT);
+    readback = (readback & (~F6222_CHn_SET_PS_SET_MASK)) | ((uint16_t)ps_step << F6222_CHn_SET_PS_SET_SHIFT);
 
     /* WRITE: latch patched CHn_SET; rf_load controls buffer vs immediate RF update. */
     st = f6222_local_reg_write(dev, rf_load, chip_addr, f6222_ch_reg_map[ch_idx].ch_set, readback);
