@@ -1,6 +1,21 @@
 [
   {
     "directory": "/home/ubuntu/Code/RENESAS-F6222-Driver",
+    "command": "gcc -std=c99 -Wall -Wextra -Wpedantic -Os -ffunction-sections -fdata-sections -MMD -MP -I include -c src/f6222_spi.c -o src/f6222_spi.o",
+    "file": "src/f6222_spi.c"
+  },
+  {
+    "directory": "/home/ubuntu/Code/RENESAS-F6222-Driver",
+    "command": "gcc -std=c99 -Wall -Wextra -Wpedantic -Os -ffunction-sections -fdata-sections -MMD -MP -I include -c src/f6222_init.c -o src/f6222_init.o",
+    "file": "src/f6222_init.c"
+  },
+  {
+    "directory": "/home/ubuntu/Code/RENESAS-F6222-Driver",
+    "command": "gcc -std=c99 -Wall -Wextra -Wpedantic -Os -ffunction-sections -fdata-sections -MMD -MP -I include -c src/f6222_channel.c -o src/f6222_channel.o",
+    "file": "src/f6222_channel.c"
+  },
+  {
+    "directory": "/home/ubuntu/Code/RENESAS-F6222-Driver",
     "command": "gcc -std=c99 -Wall -Wextra -Wpedantic -Os -ffunction-sections -fdata-sections -MMD -MP -I include -fsyntax-only include/f6222.h",
     "file": "include/f6222.h"
   }
