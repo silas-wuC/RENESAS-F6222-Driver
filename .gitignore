@@ -1,31 +1,45 @@
-# C/C++ build artifacts
+# ── F6222 driver build ──────────────────────────────────────────
+libf6222.a
+src/*.o
+src/*.d
+
+# ── Generic C/C++ build artefacts ───────────────────────────────
 *.o
-*.obj
 *.d
 *.a
-*.lib
 *.so
-*.dll
-*.exe
+*.su
+*.cyclo
+
+# Firmware images / link maps
 *.elf
 *.bin
 *.hex
 *.map
 *.lst
+*.list
 
-# Build directories
+# ── STM32 CubeMX / CubeIDE ─────────────────────────────────────
+# Makefile generator output (see BUILD_DIR in project Makefile)
 build/
-Build/
-out/
-cmake-build-*/
+Debug/
+Release/
 
-# IDE / editor
-.vscode/
-.idea/
+# STM32CubeIDE / Eclipse (if project is opened in IDE later)
+.settings/
+.project
+.cproject
+*.launch
+
+# CubeMX local backup (regenerated on save)
+*.ioc.bak
+
+# ── Editor / tooling ────────────────────────────────────────────
+.cache/
 *.swp
-*.swo
 *~
 
-# OS generated files
+# ── OS junk ─────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
+desktop.ini
