@@ -540,16 +540,24 @@ f6222_status_t f6222_fbs_local(f6222_dev_t* dev, uint8_t chip_addr, uint8_t lut_
 f6222_status_t f6222_fbs_global(f6222_dev_t* dev, bool toggle_en, bool sa_op_enable, uint8_t sa_index,
                                 uint8_t start_lut_addr, const uint8_t* followup_lut_addrs, size_t extra_count);
 
-/* ── ADC / Monitoring ────────────────────────────────────────── */
+/* ── ADC / Monitoring (WIP: src/f6222_adc.c) ─────────────────── */
 
 /**
  * f6222_read_temp_raw() — trigger and read the temperature ADC.
+ *
+ * Reference flow (mirrors f6522_adc.c):
+ *   Stage 1 — prepare temperature ADC
+ *   Stage 2 — trigger ADC conversion
+ *   Stage 3 — read measurement result
+ *   Stage 4 — cleanup & restore defaults
  *
  * @param raw  Receives the 10-bit ADC code.
  *             Convert to °C: T = (raw - C0) * 100 / 130 + T0
  *             where C0 is calibrated at known temperature T0.
  */
 f6222_status_t f6222_read_temp_raw(f6222_dev_t* dev, uint8_t chip_addr, uint16_t* raw);
+
+/* WIP: f6222_read_pdet_raw() — per-channel PDET readback (pending Renesas ref flow). */
 
 /**
  * f6222_read_active_lut() — read the currently active LUT address from MO_MEM_ACT.

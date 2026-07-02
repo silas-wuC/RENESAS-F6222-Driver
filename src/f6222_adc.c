@@ -4,7 +4,7 @@
  * Reference: RENESAS-F6522-driver/src/f6522_adc.c
  */
 
-#include "f6222_adc.h"
+#include "f6222.h"
 
 f6222_status_t f6222_read_temp_raw(f6222_dev_t* dev, uint8_t chip_addr, uint16_t* raw) {
     if (dev == NULL || dev->spi_xfer == NULL || raw == NULL) return F6222_ERR_INVALID_ARG;
