@@ -1,6 +1,7 @@
 # C/C++ build artifacts
 *.o
 *.obj
+*.d
 *.a
 *.lib
 *.so
