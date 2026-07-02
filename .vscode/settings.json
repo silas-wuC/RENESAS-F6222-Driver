@@ -1,0 +1,4 @@
+{
+    "stm32-for-vscode.openOCDPath": false,
+    "cortex-debug.armToolchainPath": "/opt/st/stm32cubeclt_1.21.0/GNU-tools-for-STM32/bin"
+}

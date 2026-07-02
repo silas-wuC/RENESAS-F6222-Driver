@@ -1,0 +1,17 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "STM32 H743 官方伺服器一鍵除錯",
+            "cwd": "${workspaceFolder}",
+            "executable": "${workspaceFolder}/build/stm32-f6222-spi-demo.elf",
+            "request": "launch",
+            "type": "cortex-debug",
+            "runToEntryPoint": "main",
+            "servertype": "stlink",
+            "serverpath": "/opt/st/stm32cubeclt_1.21.0/STLink-gdb-server/bin/ST-LINK_gdbserver",
+            "device": "STM32H743ZI",
+            "interface": "swd"
+        }
+    ]
+}
