@@ -66,6 +66,7 @@ Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_uart.c \
 Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_uart_ex.c \
 ../../../../src/f6222_spi.c \
 ../../../../src/f6222_init.c \
+../../../../src/f6222_adc.c \
 ../../../../src/f6222_channel.c \
 ../../../../platform/stm32/src/f6222_spi_stm32.c
 
