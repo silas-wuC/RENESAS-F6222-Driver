@@ -325,13 +325,13 @@ typedef enum {
 
 /*
  * Temperature sensor linear model (datasheet §6.5):
- *   code = 1.3 * (T − T0) + C0
- *   T    = (code − C0) / 1.3 + T0
+ *   code = 1.2 * (T − T0) + C0
+ *   T    = (code − C0) / 1.2 + T0
  * C0 must be calibrated at a known T0 (single-point, device in standby).
  */
 #define F6222_TEMP_T0_C 25.0f /* calibration reference temperature (°C) */
 #define F6222_TEMP_C0 405u    /* ADC code at T0; update after single-point cal */
-#define F6222_TEMP_SLOPE 1.3f /* LSB/°C, datasheet §6.5 */
+#define F6222_TEMP_SLOPE 1.2f /* LSB/°C, measured */
 
 /* ═══════════════════════════════════════════════════════════════
  * Hardware Abstraction Layer
