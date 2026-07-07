@@ -331,7 +331,7 @@ typedef enum {
  */
 #define F6222_TEMP_T0_C 25.0f /* calibration reference temperature (°C) */
 #define F6222_TEMP_C0 405u    /* ADC code at T0; update after single-point cal */
-#define F6222_TEMP_SLOPE 1.2f /* LSB/°C, measured */
+#define F6222_TEMP_SLOPE 1.2f /* LSB/°C, measured (datasheet §6.5: 1.3) */
 
 /* ═══════════════════════════════════════════════════════════════
  * Hardware Abstraction Layer
@@ -580,7 +580,7 @@ f6222_status_t f6222_fbs_global(f6222_dev_t* dev, bool toggle_en, bool sa_op_ena
  *   write ADC_CTRL 0x0400 → 0x0500 → poll-read TEMP_DATA (0x0B) → restore ADC_CTRL.
  *
  * @param raw  Receives the 10-bit ADC code.
- *             Convert to °C: T = (raw - C0) * 100 / 130 + T0
+ *             Convert to °C: T = (raw - C0) / 1.2 + T0
  *             where C0 is calibrated at known temperature T0.
  */
 f6222_status_t f6222_read_temp_raw(f6222_dev_t* dev, uint8_t chip_addr, uint16_t* raw);
