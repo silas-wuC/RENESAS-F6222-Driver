@@ -35,6 +35,7 @@
 #define F6222_REG_PTAT_BIAS_CFG 0x01u /* master bias + temp compensation    */
 #define F6222_REG_SCRATCH 0x02u       /* scratch (read-back test)           */
 #define F6222_REG_MO_MEM_ACT 0x03u    /* active mode / LUT state (read-only)*/
+#define F6222_REG_SILICON_ID 0x04u    /* readiness / device ID (GUI only)   */
 #define F6222_REG_CLK_CTRL 0x05u      /* ADC sample clock divider           */
 #define F6222_REG_ADC_CTRL 0x06u      /* ADC trigger + oscillator enable    */
 #define F6222_REG_ADC_TEST 0x0Au      /* ADC chopper / bias (typical 0x0003)*/
@@ -114,6 +115,7 @@
 #define F6222_ADC_CTRL_TEMP (1u << 8)
 #define F6222_ADC_CTRL_RESET 0x0000u
 #define F6222_ADC_CTRL_TYPICAL 0x0000u
+#define F6222_ADC_CTRL_PREPARE_OSC F6222_ADC_CTRL_OSC_EN                        /* 0x0400 — GUI temp read step 1 */
 #define F6222_ADC_CTRL_START_TEMP (F6222_ADC_CTRL_TEMP | F6222_ADC_CTRL_OSC_EN) /* 0x0500 */
 
 /* §9.2.7 Register Name: ADC_TEST — reset 0x0000, typical 0x0003 */
@@ -293,6 +295,11 @@ typedef struct {
 /* Register address table; array index 0..15 maps to API ch 1..16 (CH1..CH16). */
 extern const f6222_ch_regs_t f6222_ch_reg_map[F6222_NUM_CHANNELS];
 
+/* Silicon ID / power-on ready polling (reg 0x04 — absent from datasheet map) */
+#define F6222_SILICON_ID 0x0952u     /* F6222 identity; GUI expects this */
+#define F6222_READY_POLL_MAX 500u    /* max reads while waiting for ready */
+#define F6222_READY_CONFIRM_READS 5u /* GUI requires this many consecutive 0x0952 reads */
+
 /**
  * f6222_status_t — return codes for all public driver APIs.
  *
@@ -305,6 +312,8 @@ typedef enum {
     F6222_ERR_SPI = -2,
     F6222_ERR_SCRATCH_MISMATCH = -3,
     F6222_ERR_ADC_TIMEOUT = -4,
+    F6222_ERR_READY_TIMEOUT = -5,
+    F6222_ERR_SILICON_ID = -6,
 } f6222_status_t;
 
 /* RF Load field values (used in Local Register Write and FBS commands).
@@ -316,11 +325,13 @@ typedef enum {
 
 /*
  * Temperature sensor linear model (datasheet §6.5):
- *   code = 1.3 * (T − T0) + C0
- *   T    = (code − C0) / 1.3 + T0
+ *   code = 1.2 * (T − T0) + C0
+ *   T    = (code − C0) / 1.2 + T0
  * C0 must be calibrated at a known T0 (single-point, device in standby).
  */
-#define F6222_TEMP_SLOPE_INV_x100 77 /* 100/1.3 ≈ 77 (integer arithmetic) */
+#define F6222_TEMP_T0_C 25.0f /* calibration reference temperature (°C) */
+#define F6222_TEMP_C0 405u    /* ADC code at T0; update after single-point cal */
+#define F6222_TEMP_SLOPE 1.2f /* LSB/°C, measured (datasheet §6.5: 1.3) */
 
 /* ═══════════════════════════════════════════════════════════════
  * Hardware Abstraction Layer
@@ -372,14 +383,34 @@ typedef struct {
 /* ── Initialisation ─────────────────────────────────────────── */
 
 /**
- * f6222_init() — post-reset register programming to typical operating state.
+ * f6222_wait_ready() — poll reg 0x04 until the chip reports 0x0952.
  *
- * Programs PTAT_BIAS_CFG, CLK_CTRL, ADC_TEST, LNAIREF, and per-channel
- * BIAS/CTRL to datasheet typical values.  Leaves GLOBAL_PWD set and all
- * channels disabled (CH_PWD=1).  Caller must clear GLOBAL_PWD and enable
- * desired channels before RF use.
+ * Mirrors the evaluation GUI handshake: requires F6222_READY_CONFIRM_READS
+ * consecutive reads of 0x0952 on reg 0x04.  The datasheet does not document
+ * this sequence; it waits for LDO / oscillator startup and confirms the
+ * F6222 Silicon ID.
  *
  * @param chip_addr  5-bit chip address matching hardware ADD[4:0] pins (0–31).
+ * @return  F6222_OK on success,
+ *          F6222_ERR_READY_TIMEOUT if 0x0952 never appears,
+ *          F6222_ERR_SILICON_ID if the ID was seen but not confirmed
+ *          consecutively,
+ *          F6222_ERR_SPI if an underlying SPI transfer fails, or
+ *          F6222_ERR_INVALID_ARG if dev is NULL or chip_addr is out of range.
+ */
+f6222_status_t f6222_wait_ready(f6222_dev_t* dev, uint8_t chip_addr);
+
+/**
+ * f6222_init() — post-reset register programming to typical operating state.
+ *
+ * Calls f6222_wait_ready(), f6222_scratch_test(), then replays 76 SPI writes
+ * from the Renesas evaluation GUI Logic Analyzer trace (F6222_INIT.csv).
+ * Leaves GLOBAL_PWD set and all channels disabled (CH_PWD=1).  Caller must
+ * clear GLOBAL_PWD and enable desired channels before RF use.
+ *
+ * @param chip_addr  5-bit chip address matching hardware ADD[4:0] pins (0–31).
+ * @return  F6222_OK on success, or an error code from f6222_wait_ready(),
+ *          f6222_scratch_test(), or the init pattern loop.
  */
 f6222_status_t f6222_init(f6222_dev_t* dev, uint8_t chip_addr);
 
@@ -545,17 +576,29 @@ f6222_status_t f6222_fbs_global(f6222_dev_t* dev, bool toggle_en, bool sa_op_ena
 /**
  * f6222_read_temp_raw() — trigger and read the temperature ADC.
  *
- * Reference flow (mirrors f6522_adc.c):
- *   Stage 1 — prepare temperature ADC
- *   Stage 2 — trigger ADC conversion
- *   Stage 3 — read measurement result
- *   Stage 4 — cleanup & restore defaults
+ * Temp read SPI flow from Renesas evaluation GUI:
+ *   write ADC_CTRL 0x0400 → 0x0500 → poll-read TEMP_DATA (0x0B) → restore ADC_CTRL.
  *
  * @param raw  Receives the 10-bit ADC code.
- *             Convert to °C: T = (raw - C0) * 100 / 130 + T0
+ *             Convert to °C: T = (raw - C0) / 1.2 + T0
  *             where C0 is calibrated at known temperature T0.
  */
 f6222_status_t f6222_read_temp_raw(f6222_dev_t* dev, uint8_t chip_addr, uint16_t* raw);
+
+/**
+ * f6222_read_temp() — trigger temperature ADC and return raw code plus °C.
+ *
+ * @param chip_addr  5-bit chip address matching hardware ADD[4:0] pins (0–31).
+ * @param raw        Receives the 10-bit ADC code from TEMP_DATA (0x0B).
+ * @param temp_c     Receives temperature in °C (float), using F6222_TEMP_T0_C,
+ *                   F6222_TEMP_C0, and F6222_TEMP_SLOPE from datasheet §6.5.
+ *
+ * Blocks until ADC_DONE is set (typically < 1 ms).
+ *
+ * @return  F6222_OK on success, F6222_ERR_INVALID_ARG, F6222_ERR_ADC_TIMEOUT,
+ *          or F6222_ERR_SPI.
+ */
+f6222_status_t f6222_read_temp(f6222_dev_t* dev, uint8_t chip_addr, uint16_t* raw, float* temp_c);
 
 /* WIP: f6222_read_pdet_raw() — per-channel PDET readback (pending Renesas ref flow). */
 
