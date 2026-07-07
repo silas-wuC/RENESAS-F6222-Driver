@@ -329,10 +329,9 @@ typedef enum {
  *   T    = (code − C0) / 1.3 + T0
  * C0 must be calibrated at a known T0 (single-point, device in standby).
  */
-#define F6222_TEMP_T0_C 25.0f        /* calibration reference temperature (°C) */
-#define F6222_TEMP_C0 405u           /* ADC code at T0; update after single-point cal */
-#define F6222_TEMP_SLOPE 1.3f        /* LSB/°C, datasheet §6.5 */
-#define F6222_TEMP_SLOPE_INV_x100 77 /* 100/1.3 ≈ 77 (integer arithmetic) */
+#define F6222_TEMP_T0_C 25.0f /* calibration reference temperature (°C) */
+#define F6222_TEMP_C0 405u    /* ADC code at T0; update after single-point cal */
+#define F6222_TEMP_SLOPE 1.3f /* LSB/°C, datasheet §6.5 */
 
 /* ═══════════════════════════════════════════════════════════════
  * Hardware Abstraction Layer
