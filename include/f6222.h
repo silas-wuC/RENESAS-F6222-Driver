@@ -329,6 +329,9 @@ typedef enum {
  *   T    = (code − C0) / 1.3 + T0
  * C0 must be calibrated at a known T0 (single-point, device in standby).
  */
+#define F6222_TEMP_T0_C 25.0f        /* calibration reference temperature (°C) */
+#define F6222_TEMP_C0 0u             /* ADC code at T0; update after single-point cal */
+#define F6222_TEMP_SLOPE 1.3f        /* LSB/°C, datasheet §6.5 */
 #define F6222_TEMP_SLOPE_INV_x100 77 /* 100/1.3 ≈ 77 (integer arithmetic) */
 
 /* ═══════════════════════════════════════════════════════════════
@@ -582,6 +585,21 @@ f6222_status_t f6222_fbs_global(f6222_dev_t* dev, bool toggle_en, bool sa_op_ena
  *             where C0 is calibrated at known temperature T0.
  */
 f6222_status_t f6222_read_temp_raw(f6222_dev_t* dev, uint8_t chip_addr, uint16_t* raw);
+
+/**
+ * f6222_read_temp() — trigger temperature ADC and return raw code plus °C.
+ *
+ * @param chip_addr  5-bit chip address matching hardware ADD[4:0] pins (0–31).
+ * @param raw        Receives the 10-bit ADC code from TEMP_DATA (0x0B).
+ * @param temp_c     Receives temperature in °C (float), using F6222_TEMP_T0_C,
+ *                   F6222_TEMP_C0, and F6222_TEMP_SLOPE from datasheet §6.5.
+ *
+ * Blocks until ADC_DONE is set (typically < 1 ms).
+ *
+ * @return  F6222_OK on success, F6222_ERR_INVALID_ARG, F6222_ERR_ADC_TIMEOUT,
+ *          or F6222_ERR_SPI.
+ */
+f6222_status_t f6222_read_temp(f6222_dev_t* dev, uint8_t chip_addr, uint16_t* raw, float* temp_c);
 
 /* WIP: f6222_read_pdet_raw() — per-channel PDET readback (pending Renesas ref flow). */
 
