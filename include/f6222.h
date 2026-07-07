@@ -35,6 +35,7 @@
 #define F6222_REG_PTAT_BIAS_CFG 0x01u /* master bias + temp compensation    */
 #define F6222_REG_SCRATCH 0x02u       /* scratch (read-back test)           */
 #define F6222_REG_MO_MEM_ACT 0x03u    /* active mode / LUT state (read-only)*/
+#define F6222_REG_SILICON_ID 0x04u    /* readiness / device ID (GUI only)   */
 #define F6222_REG_CLK_CTRL 0x05u      /* ADC sample clock divider           */
 #define F6222_REG_ADC_CTRL 0x06u      /* ADC trigger + oscillator enable    */
 #define F6222_REG_ADC_TEST 0x0Au      /* ADC chopper / bias (typical 0x0003)*/
@@ -293,6 +294,11 @@ typedef struct {
 /* Register address table; array index 0..15 maps to API ch 1..16 (CH1..CH16). */
 extern const f6222_ch_regs_t f6222_ch_reg_map[F6222_NUM_CHANNELS];
 
+/* Silicon ID / power-on ready polling (reg 0x04 — absent from datasheet map) */
+#define F6222_SILICON_ID 0x0952u     /* F6222 identity; GUI expects this */
+#define F6222_READY_POLL_MAX 500u    /* max reads while waiting for ready */
+#define F6222_READY_CONFIRM_READS 5u /* GUI requires this many consecutive 0x0952 reads */
+
 /**
  * f6222_status_t — return codes for all public driver APIs.
  *
@@ -305,6 +311,8 @@ typedef enum {
     F6222_ERR_SPI = -2,
     F6222_ERR_SCRATCH_MISMATCH = -3,
     F6222_ERR_ADC_TIMEOUT = -4,
+    F6222_ERR_READY_TIMEOUT = -5,
+    F6222_ERR_SILICON_ID = -6,
 } f6222_status_t;
 
 /* RF Load field values (used in Local Register Write and FBS commands).
@@ -372,14 +380,34 @@ typedef struct {
 /* ── Initialisation ─────────────────────────────────────────── */
 
 /**
- * f6222_init() — post-reset register programming to typical operating state.
+ * f6222_wait_ready() — poll reg 0x04 until the chip reports 0x0952.
  *
- * Programs PTAT_BIAS_CFG, CLK_CTRL, ADC_TEST, LNAIREF, and per-channel
- * BIAS/CTRL to datasheet typical values.  Leaves GLOBAL_PWD set and all
- * channels disabled (CH_PWD=1).  Caller must clear GLOBAL_PWD and enable
- * desired channels before RF use.
+ * Mirrors the evaluation GUI handshake: requires F6222_READY_CONFIRM_READS
+ * consecutive reads of 0x0952 on reg 0x04.  The datasheet does not document
+ * this sequence; it waits for LDO / oscillator startup and confirms the
+ * F6222 Silicon ID.
  *
  * @param chip_addr  5-bit chip address matching hardware ADD[4:0] pins (0–31).
+ * @return  F6222_OK on success,
+ *          F6222_ERR_READY_TIMEOUT if 0x0952 never appears,
+ *          F6222_ERR_SILICON_ID if the ID was seen but not confirmed
+ *          consecutively,
+ *          F6222_ERR_SPI if an underlying SPI transfer fails, or
+ *          F6222_ERR_INVALID_ARG if dev is NULL or chip_addr is out of range.
+ */
+f6222_status_t f6222_wait_ready(f6222_dev_t* dev, uint8_t chip_addr);
+
+/**
+ * f6222_init() — post-reset register programming to typical operating state.
+ *
+ * Calls f6222_wait_ready(), f6222_scratch_test(), then replays 76 SPI writes
+ * from the Renesas evaluation GUI Logic Analyzer trace (F6222_INIT.csv).
+ * Leaves GLOBAL_PWD set and all channels disabled (CH_PWD=1).  Caller must
+ * clear GLOBAL_PWD and enable desired channels before RF use.
+ *
+ * @param chip_addr  5-bit chip address matching hardware ADD[4:0] pins (0–31).
+ * @return  F6222_OK on success, or an error code from f6222_wait_ready(),
+ *          f6222_scratch_test(), or the init pattern loop.
  */
 f6222_status_t f6222_init(f6222_dev_t* dev, uint8_t chip_addr);
 
