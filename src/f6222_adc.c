@@ -43,7 +43,7 @@ f6222_status_t f6222_read_temp_raw(f6222_dev_t* dev, uint8_t chip_addr, uint16_t
 }
 
 f6222_status_t f6222_read_temp(f6222_dev_t* dev, uint8_t chip_addr, uint16_t* raw, float* temp_c) {
-    if (temp_c == NULL) return F6222_ERR_INVALID_ARG;
+    if (raw == NULL || temp_c == NULL) return F6222_ERR_INVALID_ARG;
 
     f6222_status_t st = f6222_read_temp_raw(dev, chip_addr, raw);
     if (st != F6222_OK) return st;
