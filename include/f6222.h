@@ -115,6 +115,7 @@
 #define F6222_ADC_CTRL_TEMP (1u << 8)
 #define F6222_ADC_CTRL_RESET 0x0000u
 #define F6222_ADC_CTRL_TYPICAL 0x0000u
+#define F6222_ADC_CTRL_PREPARE_OSC F6222_ADC_CTRL_OSC_EN                        /* 0x0400 — GUI temp read step 1 */
 #define F6222_ADC_CTRL_START_TEMP (F6222_ADC_CTRL_TEMP | F6222_ADC_CTRL_OSC_EN) /* 0x0500 */
 
 /* §9.2.7 Register Name: ADC_TEST — reset 0x0000, typical 0x0003 */
@@ -573,11 +574,8 @@ f6222_status_t f6222_fbs_global(f6222_dev_t* dev, bool toggle_en, bool sa_op_ena
 /**
  * f6222_read_temp_raw() — trigger and read the temperature ADC.
  *
- * Reference flow (mirrors f6522_adc.c):
- *   Stage 1 — prepare temperature ADC
- *   Stage 2 — trigger ADC conversion
- *   Stage 3 — read measurement result
- *   Stage 4 — cleanup & restore defaults
+ * Temp read SPI flow from Renesas evaluation GUI:
+ *   write ADC_CTRL 0x0400 → 0x0500 → poll-read TEMP_DATA (0x0B) → restore ADC_CTRL.
  *
  * @param raw  Receives the 10-bit ADC code.
  *             Convert to °C: T = (raw - C0) * 100 / 130 + T0
