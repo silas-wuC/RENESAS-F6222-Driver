@@ -131,16 +131,27 @@ int main(void) {
 
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
-    // ch1_on = !ch1_on;
-    if (f6222_set_channel_enable(&f6222_dev, F6222_RF_LOAD_IMMEDIATE, 0, 1, true) != F6222_OK) {
-        printf("set ch fail\r\n");
-    }
+    bool ff = true;
+    uint16_t temp_raw = 0;
+    float temp_c = 0.0;
+
     while (1) {
         /* USER CODE END WHILE */
 
         /* USER CODE BEGIN 3 */
-
+        ff = !ff;
         HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_0 | GPIO_PIN_7 | GPIO_PIN_14);
+        for (int i = 0; i < 4; i++) {
+            if (f6222_set_channel_enable(&f6222_dev, F6222_RF_LOAD_IMMEDIATE, 0, i + 1, ff) != F6222_OK) {
+                printf("set ch fail\r\n");
+            }
+        }
+        if (f6222_read_temp(&f6222_dev, 0, &temp_raw, &temp_c) != F6222_OK) {
+            printf("temp read fail\r\n");
+        }
+        printf("temp_raw = %d\r\n", temp_raw);
+        int32_t t_x100 = ((int32_t)(temp_raw - F6222_TEMP_C0) * 83.333333333333) + (int32_t)(F6222_TEMP_T0_C * 100.0f);
+        printf("temp_c = %ld.%02ld\r\n", t_x100 / 100, t_x100 % 100);
 
         HAL_Delay(500);
     }
