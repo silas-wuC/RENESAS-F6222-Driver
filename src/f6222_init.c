@@ -71,7 +71,12 @@ typedef struct {
 } f6222_init_entry_t;
 
 /* Source: Renesas official evaluation GUI init sequence, LA capture (F6222_INIT.csv).
- * 76 local register writes, RF Load = immediate. Not derived from datasheet prose. */
+ * 76 local register writes, RF Load = immediate. Not derived from datasheet prose.
+ *
+ * ORDER MATTERS: entry 0 (CTRL_CFG, GLOBAL_PWD=1) must stay first.
+ * f6222_init_global() replays this table via Global Register Write, which
+ * latches every write immediately — powering down first keeps the RF
+ * outputs safe while the rest of the table lands. */
 static const f6222_init_entry_t f6222_init_pattern[] = {
     {0x00u, 0x0010u},                   /* CTRL_CFG */
     {0x06u, 0x0000u},                   /* ADC_CTRL */
@@ -120,6 +125,18 @@ static f6222_status_t f6222_set_init_pattern(f6222_dev_t* dev, uint8_t chip_addr
     return F6222_OK;
 }
 
+static f6222_status_t f6222_set_init_pattern_global(f6222_dev_t* dev) {
+    f6222_status_t st;
+    size_t i;
+
+    for (i = 0; i < F6222_INIT_PATTERN_COUNT; i++) {
+        st = f6222_global_reg_write(dev, false, 0u, f6222_init_pattern[i].reg, f6222_init_pattern[i].val);
+        if (st != F6222_OK) return st;
+    }
+
+    return F6222_OK;
+}
+
 f6222_status_t f6222_init(f6222_dev_t* dev, uint8_t chip_addr) {
     if (dev == NULL || dev->spi_xfer == NULL) return F6222_ERR_INVALID_ARG;
     if (chip_addr > F6222_CHIP_ADDR_MAX) return F6222_ERR_INVALID_ARG;
@@ -138,4 +155,14 @@ f6222_status_t f6222_init(f6222_dev_t* dev, uint8_t chip_addr) {
     /* No explicit channel-disable pass: the init table already latched
      * CHn_SET = 0x03F9 (CH_PWD=1) for all 16 channels with RF Load = 01. */
     return F6222_OK;
+}
+
+f6222_status_t f6222_init_global(f6222_dev_t* dev) {
+    if (dev == NULL || dev->spi_xfer == NULL) return F6222_ERR_INVALID_ARG;
+
+    /* Pure broadcast: Global Register Write (mode 011) reaches every chip on
+     * the SPI bus in one pass, but is write-only — no wait_ready or
+     * scratch_test is possible here. Caller must ensure all chips are out of
+     * reset first (e.g. run f6222_wait_ready() on one representative chip). */
+    return f6222_set_init_pattern_global(dev);
 }
