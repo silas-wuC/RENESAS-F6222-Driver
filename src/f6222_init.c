@@ -5,8 +5,10 @@
  * SPI trace — Logic Analyzer capture exported as F6222_INIT.csv (76 writes).
  * Not an independent translation of datasheet prose.
  *
- * f6222_init() sequence: wait_ready → scratch_test → set_init_pattern (76 writes)
- * → f6222_set_channel_enable(false) for CH1–CH16.
+ * f6222_init() sequence: wait_ready → scratch_test → set_init_pattern (76 writes).
+ * The table itself disables every channel (CHn_SET = 0x03F9, CH_PWD=1); the GUI
+ * trace's trailing per-channel disable loop is intentionally not replayed — it
+ * was redundant and buffered (RF Load = 00) without ever being latched.
  */
 
 #include "f6222.h"
@@ -75,6 +77,8 @@ static const f6222_init_entry_t f6222_init_pattern[] = {
     {0x06u, 0x0000u},                   /* ADC_CTRL */
     {0x0Au, 0x0003u},                   /* ADC_TEST */
     {0x05u, 0x0B30u},                   /* CLK_CTRL */
+    /* PTAT_BIAS_CFG: GUI trace writes 0x0C82 (MB_PT2_SLOPE=6, MB_PT2_EN=1),
+     * datasheet typical is 0x088A — keep the trace value (tuned setting). */
     {0x64u, 0x0000u}, {0x01u, 0x0C82u}, /* PTAT_BIAS_CFG */
     {0x09u, 0x0000u}, {0x07u, 0x0000u}, {0x20u, 0x6CDBu}, {0x21u, 0x2FFFu},
     {0x22u, 0x03F9u}, {0x23u, 0x0000u},                                     /* CH1 */
@@ -93,6 +97,8 @@ static const f6222_init_entry_t f6222_init_pattern[] = {
     {0x54u, 0x6CDBu}, {0x55u, 0x2FFFu}, {0x56u, 0x03F9u}, {0x57u, 0x0000u}, /* CH14 */
     {0x58u, 0x6CDBu}, {0x59u, 0x2FFFu}, {0x5Au, 0x03F9u}, {0x5Bu, 0x0000u}, /* CH15 */
     {0x5Cu, 0x6CDBu}, {0x5Du, 0x2FFFu}, {0x5Eu, 0x03F9u}, {0x5Fu, 0x0000u}, /* CH16 */
+    /* LNAIREF1-4: GUI trace writes 0x0007/0x0087/0x0007/0x0007; datasheet
+     * typicals are 0x000F/0x008F (bit3 differs) — keep the trace values. */
     {0x69u, 0x0007u}, {0x6Au, 0x0087u}, {0x6Bu, 0x0007u}, {0x6Cu, 0x0007u}, /* LNAIREF */
 };
 
@@ -129,10 +135,7 @@ f6222_status_t f6222_init(f6222_dev_t* dev, uint8_t chip_addr) {
     st = f6222_set_init_pattern(dev, chip_addr);
     if (st != F6222_OK) return st;
 
-    for (uint8_t ch = F6222_CH_MIN; ch <= F6222_CH_MAX; ch++) {
-        st = f6222_set_channel_enable(dev, F6222_RF_LOAD_BUFFER, chip_addr, ch, false);
-        if (st != F6222_OK) return st;
-    }
-
+    /* No explicit channel-disable pass: the init table already latched
+     * CHn_SET = 0x03F9 (CH_PWD=1) for all 16 channels with RF Load = 01. */
     return F6222_OK;
 }
