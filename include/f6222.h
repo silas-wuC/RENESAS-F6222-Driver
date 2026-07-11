@@ -265,6 +265,9 @@
 #define F6222_CH_IS_VALID(ch) ((ch) >= F6222_CH_MIN && (ch) <= F6222_CH_MAX)
 #define F6222_CH_TO_IDX(ch) ((uint8_t)((ch) - F6222_CH_MIN))
 #define F6222_LUT_ENTRIES 128u  /* fast-beam-steering LUT depth     */
+/* Max extra data words per f6222_lut_write_global() call: first word + 127
+ * extras = 128 words = one full LUT column. Bounds the TX frame buffer. */
+#define F6222_LUT_WRITE_MAX_EXTRA (F6222_LUT_ENTRIES - 1u)
 #define F6222_CHIP_ADDR_MAX 31u /* ADD1–ADD5 strap pins (ADD[4:0], 0–31) */
 #define F6222_CHIP_ADDR_MASK 0x1Fu
 

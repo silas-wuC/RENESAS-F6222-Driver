@@ -133,16 +133,14 @@ f6222_status_t f6222_lut_write_global(f6222_dev_t* dev, bool lut_all_channels, u
                                       uint16_t val, const uint16_t* extra_vals, size_t extra_count) {
     if (dev == NULL || dev->spi_xfer == NULL) return F6222_ERR_INVALID_ARG;
     if ((!lut_all_channels && !F6222_CH_IS_VALID(ch)) || lut_addr >= F6222_LUT_ENTRIES ||
-        (extra_count > 0u && extra_vals == NULL))
+        (extra_count > 0u && extra_vals == NULL) || extra_count > F6222_LUT_WRITE_MAX_EXTRA)
         return F6222_ERR_INVALID_ARG;
 
     size_t tx_len = 4u + extra_count * 2u;
-    uint8_t tx[tx_len];
+    uint8_t tx[4u + 2u * F6222_LUT_WRITE_MAX_EXTRA] = {0};
     uint8_t ch_idx = F6222_CH_TO_IDX(ch);
     size_t i;
     int ret;
-
-    for (i = 0; i < tx_len; i++) tx[i] = 0u;
 
     tx[0] =
         (F6222_SPI_M_GLOBAL_LUT_WRITE << 5) | ((lut_all_channels ? 1u : 0u) << F6222_SPI_LM_SHIFT) | (ch_idx & 0x0Fu);
