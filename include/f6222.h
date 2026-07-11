@@ -565,6 +565,8 @@ f6222_status_t f6222_set_lna_sw(f6222_dev_t* dev, uint8_t rf_load, uint8_t chip_
  * f6222_set_global_pwd() — set or clear GLOBAL_PWD in CTRL_CFG.
  *
  * When GLOBAL_PWD=1, CH_PWD has no effect and all channels are off.
+ *
+ * TODO: declared but not yet implemented (no definition in src/).
  */
 f6222_status_t f6222_set_global_pwd(f6222_dev_t* dev, uint8_t chip_addr, bool power_down);
 
@@ -580,6 +582,8 @@ f6222_status_t f6222_apply_rf(f6222_dev_t* dev, uint8_t chip_addr);
 
 /**
  * f6222_fbs_local() — switch this chip to a stored LUT beam state (Mode 101).
+ *
+ * TODO: declared but not yet implemented (no definition in src/).
  */
 f6222_status_t f6222_fbs_local(f6222_dev_t* dev, uint8_t chip_addr, uint8_t lut_addr, uint8_t rf_load);
 
@@ -594,6 +598,8 @@ f6222_status_t f6222_fbs_local(f6222_dev_t* dev, uint8_t chip_addr, uint8_t lut_
  * @param start_lut_addr      [7:1] LA: starting LUT entry, 0–127.
  * @param followup_lut_addrs  TE=0: extra LUT addresses; TE=1: NULL.
  * @param extra_count         Number of follow-up 8-bit blocks after the command word.
+ *
+ * TODO: declared but not yet implemented (no definition in src/).
  */
 f6222_status_t f6222_fbs_global(f6222_dev_t* dev, bool toggle_en, bool sa_op_enable, uint8_t sa_index,
                                 uint8_t start_lut_addr, const uint8_t* followup_lut_addrs, size_t extra_count);
@@ -631,5 +637,7 @@ f6222_status_t f6222_read_temp(f6222_dev_t* dev, uint8_t chip_addr, uint16_t* ra
 
 /**
  * f6222_read_active_lut() — read the currently active LUT address from MO_MEM_ACT.
+ *
+ * TODO: declared but not yet implemented (no definition in src/).
  */
 f6222_status_t f6222_read_active_lut(f6222_dev_t* dev, uint8_t chip_addr, uint8_t* lut_addr);
