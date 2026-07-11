@@ -48,6 +48,8 @@ f6222_status_t f6222_read_temp(f6222_dev_t* dev, uint8_t chip_addr, uint16_t* ra
     f6222_status_t st = f6222_read_temp_raw(dev, chip_addr, raw);
     if (st != F6222_OK) return st;
 
-    *temp_c = ((float)(*raw - F6222_TEMP_C0) / F6222_TEMP_SLOPE) + F6222_TEMP_T0_C;
+    /* Cast each operand before subtracting: (*raw - F6222_TEMP_C0) would be
+     * computed in unsigned arithmetic and wrap when raw < C0 (below ~T0). */
+    *temp_c = (((float)*raw - (float)F6222_TEMP_C0) / F6222_TEMP_SLOPE) + F6222_TEMP_T0_C;
     return F6222_OK;
 }
