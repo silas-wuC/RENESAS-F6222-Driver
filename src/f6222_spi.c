@@ -34,7 +34,7 @@ f6222_status_t f6222_local_reg_write(f6222_dev_t* dev, uint8_t rf_load, uint8_t 
     uint8_t tx[5] = {0};
     int ret;
 
-    tx[0] = 0x20u | ((rf_load & 0x03u) << 3);
+    tx[0] = (uint8_t)(F6222_SPI_M_LOCAL_REG_WRITE << 5) | ((rf_load & 0x03u) << 3);
     tx[1] = chip_addr & F6222_CHIP_ADDR_MASK;
     tx[2] = reg & F6222_SPI_REG_ADDR_MASK;
     tx[3] = (uint8_t)(val >> F6222_SPI_DATA_HIGH_SHIFT);
@@ -54,7 +54,7 @@ f6222_status_t f6222_local_reg_read(f6222_dev_t* dev, uint8_t chip_addr, uint8_t
     uint8_t rx[5] = {0};
     int ret;
 
-    tx[0] = 0x00u;
+    tx[0] = (uint8_t)(F6222_SPI_M_LOCAL_REG_READ << 5);
     tx[1] = chip_addr & F6222_CHIP_ADDR_MASK;
     tx[2] = reg & F6222_SPI_REG_ADDR_MASK;
     tx[3] = F6222_SPI_PAD_BYTE;
@@ -75,7 +75,7 @@ f6222_status_t f6222_local_lut_write(f6222_dev_t* dev, uint8_t ch, uint8_t chip_
     uint8_t ch_idx = F6222_CH_TO_IDX(ch);
     int ret;
 
-    tx[0] = 0xC0u | ((ch_idx & 0x0Fu) << 1);
+    tx[0] = (uint8_t)(F6222_SPI_M_LOCAL_LUT_WRITE << 5) | ((ch_idx & 0x0Fu) << 1);
     tx[1] = chip_addr & F6222_CHIP_ADDR_MASK;
     tx[2] = lut_addr & F6222_SPI_LUT_ADDR_MASK;
     tx[3] = (uint8_t)(val >> F6222_SPI_DATA_HIGH_SHIFT);
@@ -119,7 +119,7 @@ f6222_status_t f6222_global_reg_write(f6222_dev_t* dev, bool sa_op_enable, uint8
     uint8_t tx[4] = {0};
     int ret;
 
-    tx[0] = 0x60u | ((sa_op_enable ? 1u : 0u) << 3) | (sa_index & 0x07u);
+    tx[0] = (uint8_t)(F6222_SPI_M_GLOBAL_REG_WRITE << 5) | ((sa_op_enable ? 1u : 0u) << 3) | (sa_index & 0x07u);
     tx[1] = reg & F6222_SPI_REG_ADDR_MASK;
     tx[2] = (uint8_t)(val >> F6222_SPI_DATA_HIGH_SHIFT);
     tx[3] = (uint8_t)(val & F6222_SPI_DATA_LOW_MASK);
@@ -133,16 +133,14 @@ f6222_status_t f6222_lut_write_global(f6222_dev_t* dev, bool lut_all_channels, u
                                       uint16_t val, const uint16_t* extra_vals, size_t extra_count) {
     if (dev == NULL || dev->spi_xfer == NULL) return F6222_ERR_INVALID_ARG;
     if ((!lut_all_channels && !F6222_CH_IS_VALID(ch)) || lut_addr >= F6222_LUT_ENTRIES ||
-        (extra_count > 0u && extra_vals == NULL))
+        (extra_count > 0u && extra_vals == NULL) || extra_count > F6222_LUT_WRITE_MAX_EXTRA)
         return F6222_ERR_INVALID_ARG;
 
     size_t tx_len = 4u + extra_count * 2u;
-    uint8_t tx[tx_len];
+    uint8_t tx[4u + 2u * F6222_LUT_WRITE_MAX_EXTRA] = {0};
     uint8_t ch_idx = F6222_CH_TO_IDX(ch);
     size_t i;
     int ret;
-
-    for (i = 0; i < tx_len; i++) tx[i] = 0u;
 
     tx[0] =
         (F6222_SPI_M_GLOBAL_LUT_WRITE << 5) | ((lut_all_channels ? 1u : 0u) << F6222_SPI_LM_SHIFT) | (ch_idx & 0x0Fu);

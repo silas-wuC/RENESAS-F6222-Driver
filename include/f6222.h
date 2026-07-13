@@ -264,7 +264,10 @@
 #define F6222_CH_MAX F6222_NUM_CHANNELS
 #define F6222_CH_IS_VALID(ch) ((ch) >= F6222_CH_MIN && (ch) <= F6222_CH_MAX)
 #define F6222_CH_TO_IDX(ch) ((uint8_t)((ch) - F6222_CH_MIN))
-#define F6222_LUT_ENTRIES 128u  /* fast-beam-steering LUT depth     */
+#define F6222_LUT_ENTRIES 128u /* fast-beam-steering LUT depth     */
+/* Max extra data words per f6222_lut_write_global() call: first word + 127
+ * extras = 128 words = one full LUT column. Bounds the TX frame buffer. */
+#define F6222_LUT_WRITE_MAX_EXTRA (F6222_LUT_ENTRIES - 1u)
 #define F6222_CHIP_ADDR_MAX 31u /* ADD1–ADD5 strap pins (ADD[4:0], 0–31) */
 #define F6222_CHIP_ADDR_MASK 0x1Fu
 
@@ -415,6 +418,30 @@ f6222_status_t f6222_wait_ready(f6222_dev_t* dev, uint8_t chip_addr);
 f6222_status_t f6222_init(f6222_dev_t* dev, uint8_t chip_addr);
 
 /**
+ * f6222_init_global() — broadcast init to every chip on the SPI bus.
+ *
+ * Replays the same 76-entry init table as f6222_init(), but through Global
+ * Register Write (Mode 011, §8.6): one pass programs all chips regardless of
+ * their ADD[4:0] straps — O(1) bus time instead of O(N) per-chip inits.
+ *
+ * Pure broadcast, by design NO verification: Mode 011 is write-only, so
+ * there is no wait_ready / scratch_test equivalent. A chip still in reset
+ * silently misses the broadcast. Preconditions for the caller:
+ *   - All chips are powered and out of reset (e.g. confirm with
+ *     f6222_wait_ready() on one representative chip, or wait the datasheet
+ *     startup time).
+ * Notes:
+ *   - Mode 011 has no RF Load field; every write latches immediately. The
+ *     table asserts GLOBAL_PWD=1 first, so RF stays powered down throughout.
+ *   - End state matches f6222_init(): GLOBAL_PWD=1 and all channels
+ *     CH_PWD=1. Caller must clear GLOBAL_PWD and enable channels for RF use.
+ *
+ * @return  F6222_OK on success, F6222_ERR_SPI on transfer failure, or
+ *          F6222_ERR_INVALID_ARG if dev is NULL.
+ */
+f6222_status_t f6222_init_global(f6222_dev_t* dev);
+
+/**
  * f6222_scratch_test() — write/read-verify SCRATCH (0x02) with a built-in pattern list.
  */
 f6222_status_t f6222_scratch_test(f6222_dev_t* dev, uint8_t chip_addr);
@@ -538,6 +565,8 @@ f6222_status_t f6222_set_lna_sw(f6222_dev_t* dev, uint8_t rf_load, uint8_t chip_
  * f6222_set_global_pwd() — set or clear GLOBAL_PWD in CTRL_CFG.
  *
  * When GLOBAL_PWD=1, CH_PWD has no effect and all channels are off.
+ *
+ * TODO: declared but not yet implemented (no definition in src/).
  */
 f6222_status_t f6222_set_global_pwd(f6222_dev_t* dev, uint8_t chip_addr, bool power_down);
 
@@ -553,6 +582,8 @@ f6222_status_t f6222_apply_rf(f6222_dev_t* dev, uint8_t chip_addr);
 
 /**
  * f6222_fbs_local() — switch this chip to a stored LUT beam state (Mode 101).
+ *
+ * TODO: declared but not yet implemented (no definition in src/).
  */
 f6222_status_t f6222_fbs_local(f6222_dev_t* dev, uint8_t chip_addr, uint8_t lut_addr, uint8_t rf_load);
 
@@ -567,6 +598,8 @@ f6222_status_t f6222_fbs_local(f6222_dev_t* dev, uint8_t chip_addr, uint8_t lut_
  * @param start_lut_addr      [7:1] LA: starting LUT entry, 0–127.
  * @param followup_lut_addrs  TE=0: extra LUT addresses; TE=1: NULL.
  * @param extra_count         Number of follow-up 8-bit blocks after the command word.
+ *
+ * TODO: declared but not yet implemented (no definition in src/).
  */
 f6222_status_t f6222_fbs_global(f6222_dev_t* dev, bool toggle_en, bool sa_op_enable, uint8_t sa_index,
                                 uint8_t start_lut_addr, const uint8_t* followup_lut_addrs, size_t extra_count);
@@ -604,5 +637,7 @@ f6222_status_t f6222_read_temp(f6222_dev_t* dev, uint8_t chip_addr, uint16_t* ra
 
 /**
  * f6222_read_active_lut() — read the currently active LUT address from MO_MEM_ACT.
+ *
+ * TODO: declared but not yet implemented (no definition in src/).
  */
 f6222_status_t f6222_read_active_lut(f6222_dev_t* dev, uint8_t chip_addr, uint8_t* lut_addr);

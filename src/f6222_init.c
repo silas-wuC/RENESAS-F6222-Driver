@@ -5,8 +5,10 @@
  * SPI trace — Logic Analyzer capture exported as F6222_INIT.csv (76 writes).
  * Not an independent translation of datasheet prose.
  *
- * f6222_init() sequence: wait_ready → scratch_test → set_init_pattern (76 writes)
- * → f6222_set_channel_enable(false) for CH1–CH16.
+ * f6222_init() sequence: wait_ready → scratch_test → set_init_pattern (76 writes).
+ * The table itself disables every channel (CHn_SET = 0x03F9, CH_PWD=1); the GUI
+ * trace's trailing per-channel disable loop is intentionally not replayed — it
+ * was redundant and buffered (RF Load = 00) without ever being latched.
  */
 
 #include "f6222.h"
@@ -69,31 +71,93 @@ typedef struct {
 } f6222_init_entry_t;
 
 /* Source: Renesas official evaluation GUI init sequence, LA capture (F6222_INIT.csv).
- * 76 local register writes, RF Load = immediate. Not derived from datasheet prose. */
+ * 76 local register writes, RF Load = immediate. Not derived from datasheet prose.
+ *
+ * ORDER MATTERS: entry 0 (CTRL_CFG, GLOBAL_PWD=1) must stay first.
+ * f6222_init_global() replays this table via Global Register Write, which
+ * latches every write immediately — powering down first keeps the RF
+ * outputs safe while the rest of the table lands. */
 static const f6222_init_entry_t f6222_init_pattern[] = {
-    {0x00u, 0x0010u},                   /* CTRL_CFG */
-    {0x06u, 0x0000u},                   /* ADC_CTRL */
-    {0x0Au, 0x0003u},                   /* ADC_TEST */
-    {0x05u, 0x0B30u},                   /* CLK_CTRL */
-    {0x64u, 0x0000u}, {0x01u, 0x0C82u}, /* PTAT_BIAS_CFG */
-    {0x09u, 0x0000u}, {0x07u, 0x0000u}, {0x20u, 0x6CDBu}, {0x21u, 0x2FFFu},
-    {0x22u, 0x03F9u}, {0x23u, 0x0000u},                                     /* CH1 */
-    {0x24u, 0x6CDBu}, {0x25u, 0x2FFFu}, {0x26u, 0x03F9u}, {0x27u, 0x0000u}, /* CH2 */
-    {0x28u, 0x6CDBu}, {0x29u, 0x2FFFu}, {0x2Au, 0x03F9u}, {0x2Bu, 0x0000u}, /* CH3 */
-    {0x2Cu, 0x6CDBu}, {0x2Du, 0x2FFFu}, {0x2Eu, 0x03F9u}, {0x2Fu, 0x0000u}, /* CH4 */
-    {0x30u, 0x6CDBu}, {0x31u, 0x2FFFu}, {0x32u, 0x03F9u}, {0x33u, 0x0000u}, /* CH5 */
-    {0x34u, 0x6CDBu}, {0x35u, 0x2FFFu}, {0x36u, 0x03F9u}, {0x37u, 0x0000u}, /* CH6 */
-    {0x38u, 0x6CDBu}, {0x39u, 0x2FFFu}, {0x3Au, 0x03F9u}, {0x3Bu, 0x0000u}, /* CH7 */
-    {0x3Cu, 0x6CDBu}, {0x3Du, 0x2FFFu}, {0x3Eu, 0x03F9u}, {0x3Fu, 0x0000u}, /* CH8 */
-    {0x40u, 0x6CDBu}, {0x41u, 0x2FFFu}, {0x42u, 0x03F9u}, {0x43u, 0x0000u}, /* CH9 */
-    {0x44u, 0x6CDBu}, {0x45u, 0x2FFFu}, {0x46u, 0x03F9u}, {0x47u, 0x0000u}, /* CH10 */
-    {0x48u, 0x6CDBu}, {0x49u, 0x2FFFu}, {0x4Au, 0x03F9u}, {0x4Bu, 0x0000u}, /* CH11 */
-    {0x4Cu, 0x6CDBu}, {0x4Du, 0x2FFFu}, {0x4Eu, 0x03F9u}, {0x4Fu, 0x0000u}, /* CH12 */
-    {0x50u, 0x6CDBu}, {0x51u, 0x2FFFu}, {0x52u, 0x03F9u}, {0x53u, 0x0000u}, /* CH13 */
-    {0x54u, 0x6CDBu}, {0x55u, 0x2FFFu}, {0x56u, 0x03F9u}, {0x57u, 0x0000u}, /* CH14 */
-    {0x58u, 0x6CDBu}, {0x59u, 0x2FFFu}, {0x5Au, 0x03F9u}, {0x5Bu, 0x0000u}, /* CH15 */
-    {0x5Cu, 0x6CDBu}, {0x5Du, 0x2FFFu}, {0x5Eu, 0x03F9u}, {0x5Fu, 0x0000u}, /* CH16 */
-    {0x69u, 0x0007u}, {0x6Au, 0x0087u}, {0x6Bu, 0x0007u}, {0x6Cu, 0x0007u}, /* LNAIREF */
+    {0x00u, 0x0010u}, /* CTRL_CFG */
+    {0x06u, 0x0000u}, /* ADC_CTRL */
+    {0x0Au, 0x0003u}, /* ADC_TEST */
+    {0x05u, 0x0B30u}, /* CLK_CTRL */
+    /* PTAT_BIAS_CFG: GUI trace writes 0x0C82 (MB_PT2_SLOPE=6, MB_PT2_EN=1),
+     * datasheet typical is 0x088A — keep the trace value (tuned setting). */
+    {0x64u, 0x0000u},
+    {0x01u, 0x0C82u}, /* PTAT_BIAS_CFG */
+    {0x09u, 0x0000u},
+    {0x07u, 0x0000u},
+    {0x20u, 0x6CDBu},
+    {0x21u, 0x2FFFu},
+    {0x22u, 0x03F9u},
+    {0x23u, 0x0000u}, /* CH1 */
+    {0x24u, 0x6CDBu},
+    {0x25u, 0x2FFFu},
+    {0x26u, 0x03F9u},
+    {0x27u, 0x0000u}, /* CH2 */
+    {0x28u, 0x6CDBu},
+    {0x29u, 0x2FFFu},
+    {0x2Au, 0x03F9u},
+    {0x2Bu, 0x0000u}, /* CH3 */
+    {0x2Cu, 0x6CDBu},
+    {0x2Du, 0x2FFFu},
+    {0x2Eu, 0x03F9u},
+    {0x2Fu, 0x0000u}, /* CH4 */
+    {0x30u, 0x6CDBu},
+    {0x31u, 0x2FFFu},
+    {0x32u, 0x03F9u},
+    {0x33u, 0x0000u}, /* CH5 */
+    {0x34u, 0x6CDBu},
+    {0x35u, 0x2FFFu},
+    {0x36u, 0x03F9u},
+    {0x37u, 0x0000u}, /* CH6 */
+    {0x38u, 0x6CDBu},
+    {0x39u, 0x2FFFu},
+    {0x3Au, 0x03F9u},
+    {0x3Bu, 0x0000u}, /* CH7 */
+    {0x3Cu, 0x6CDBu},
+    {0x3Du, 0x2FFFu},
+    {0x3Eu, 0x03F9u},
+    {0x3Fu, 0x0000u}, /* CH8 */
+    {0x40u, 0x6CDBu},
+    {0x41u, 0x2FFFu},
+    {0x42u, 0x03F9u},
+    {0x43u, 0x0000u}, /* CH9 */
+    {0x44u, 0x6CDBu},
+    {0x45u, 0x2FFFu},
+    {0x46u, 0x03F9u},
+    {0x47u, 0x0000u}, /* CH10 */
+    {0x48u, 0x6CDBu},
+    {0x49u, 0x2FFFu},
+    {0x4Au, 0x03F9u},
+    {0x4Bu, 0x0000u}, /* CH11 */
+    {0x4Cu, 0x6CDBu},
+    {0x4Du, 0x2FFFu},
+    {0x4Eu, 0x03F9u},
+    {0x4Fu, 0x0000u}, /* CH12 */
+    {0x50u, 0x6CDBu},
+    {0x51u, 0x2FFFu},
+    {0x52u, 0x03F9u},
+    {0x53u, 0x0000u}, /* CH13 */
+    {0x54u, 0x6CDBu},
+    {0x55u, 0x2FFFu},
+    {0x56u, 0x03F9u},
+    {0x57u, 0x0000u}, /* CH14 */
+    {0x58u, 0x6CDBu},
+    {0x59u, 0x2FFFu},
+    {0x5Au, 0x03F9u},
+    {0x5Bu, 0x0000u}, /* CH15 */
+    {0x5Cu, 0x6CDBu},
+    {0x5Du, 0x2FFFu},
+    {0x5Eu, 0x03F9u},
+    {0x5Fu, 0x0000u}, /* CH16 */
+    /* LNAIREF1-4: GUI trace writes 0x0007/0x0087/0x0007/0x0007; datasheet
+     * typicals are 0x000F/0x008F (bit3 differs) — keep the trace values. */
+    {0x69u, 0x0007u},
+    {0x6Au, 0x0087u},
+    {0x6Bu, 0x0007u},
+    {0x6Cu, 0x0007u}, /* LNAIREF */
 };
 
 #define F6222_INIT_PATTERN_COUNT (sizeof(f6222_init_pattern) / sizeof(f6222_init_pattern[0]))
@@ -108,6 +172,18 @@ static f6222_status_t f6222_set_init_pattern(f6222_dev_t* dev, uint8_t chip_addr
     for (i = 0; i < F6222_INIT_PATTERN_COUNT; i++) {
         st = f6222_local_reg_write(dev, F6222_RF_LOAD_IMMEDIATE, chip_addr, f6222_init_pattern[i].reg,
                                    f6222_init_pattern[i].val);
+        if (st != F6222_OK) return st;
+    }
+
+    return F6222_OK;
+}
+
+static f6222_status_t f6222_set_init_pattern_global(f6222_dev_t* dev) {
+    f6222_status_t st;
+    size_t i;
+
+    for (i = 0; i < F6222_INIT_PATTERN_COUNT; i++) {
+        st = f6222_global_reg_write(dev, false, 0u, f6222_init_pattern[i].reg, f6222_init_pattern[i].val);
         if (st != F6222_OK) return st;
     }
 
@@ -129,10 +205,17 @@ f6222_status_t f6222_init(f6222_dev_t* dev, uint8_t chip_addr) {
     st = f6222_set_init_pattern(dev, chip_addr);
     if (st != F6222_OK) return st;
 
-    for (uint8_t ch = F6222_CH_MIN; ch <= F6222_CH_MAX; ch++) {
-        st = f6222_set_channel_enable(dev, F6222_RF_LOAD_BUFFER, chip_addr, ch, false);
-        if (st != F6222_OK) return st;
-    }
-
+    /* No explicit channel-disable pass: the init table already latched
+     * CHn_SET = 0x03F9 (CH_PWD=1) for all 16 channels with RF Load = 01. */
     return F6222_OK;
+}
+
+f6222_status_t f6222_init_global(f6222_dev_t* dev) {
+    if (dev == NULL || dev->spi_xfer == NULL) return F6222_ERR_INVALID_ARG;
+
+    /* Pure broadcast: Global Register Write (mode 011) reaches every chip on
+     * the SPI bus in one pass, but is write-only — no wait_ready or
+     * scratch_test is possible here. Caller must ensure all chips are out of
+     * reset first (e.g. run f6222_wait_ready() on one representative chip). */
+    return f6222_set_init_pattern_global(dev);
 }
