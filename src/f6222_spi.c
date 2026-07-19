@@ -26,7 +26,8 @@ const f6222_ch_regs_t f6222_ch_reg_map[F6222_NUM_CHANNELS] = {
     [15] = {.ch_bias = 0x5Cu, .ch_ctrl = 0x5Du, .ch_set = 0x5Eu},
 };
 
-f6222_status_t f6222_local_reg_write(f6222_dev_t* dev, uint8_t rf_load, uint8_t chip_addr, uint8_t reg, uint16_t val) {
+f6222_status_t f6222_local_reg_write(f6222_dev_t* dev, uint8_t rf_load, uint8_t chip_addr, uint8_t reg,
+                                     uint16_t reg_value) {
     if (dev == NULL || dev->spi_xfer == NULL) return F6222_ERR_INVALID_ARG;
     if (rf_load > F6222_RF_LOAD_IMMEDIATE || chip_addr > F6222_CHIP_ADDR_MAX || reg > F6222_SPI_REG_ADDR_MASK)
         return F6222_ERR_INVALID_ARG;
@@ -34,11 +35,11 @@ f6222_status_t f6222_local_reg_write(f6222_dev_t* dev, uint8_t rf_load, uint8_t 
     uint8_t tx[5] = {0};
     int ret;
 
-    tx[0] = (uint8_t)(F6222_SPI_M_LOCAL_REG_WRITE << 5) | ((rf_load & 0x03u) << 3);
+    tx[0] = (uint8_t)(F6222_SPI_M_LOCAL_REG_WRITE << 5u) | ((rf_load & 0x03u) << 3u);
     tx[1] = chip_addr & F6222_CHIP_ADDR_MASK;
     tx[2] = reg & F6222_SPI_REG_ADDR_MASK;
-    tx[3] = (uint8_t)(val >> F6222_SPI_DATA_HIGH_SHIFT);
-    tx[4] = (uint8_t)(val & F6222_SPI_DATA_LOW_MASK);
+    tx[3] = (uint8_t)(reg_value >> F6222_SPI_DATA_HIGH_SHIFT);
+    tx[4] = (uint8_t)(reg_value & F6222_SPI_DATA_LOW_MASK);
 
     ret = dev->spi_xfer(dev->ctx, tx, NULL, sizeof(tx));
     if (ret < 0) return F6222_ERR_SPI;
@@ -46,15 +47,16 @@ f6222_status_t f6222_local_reg_write(f6222_dev_t* dev, uint8_t rf_load, uint8_t 
     return F6222_OK;
 }
 
-f6222_status_t f6222_local_reg_read(f6222_dev_t* dev, uint8_t chip_addr, uint8_t reg, uint16_t* val) {
+f6222_status_t f6222_local_reg_read(f6222_dev_t* dev, uint8_t chip_addr, uint8_t reg, uint16_t* reg_value) {
     if (dev == NULL || dev->spi_xfer == NULL) return F6222_ERR_INVALID_ARG;
-    if (chip_addr > F6222_CHIP_ADDR_MAX || reg > F6222_SPI_REG_ADDR_MASK || val == NULL) return F6222_ERR_INVALID_ARG;
+    if (chip_addr > F6222_CHIP_ADDR_MAX || reg > F6222_SPI_REG_ADDR_MASK || reg_value == NULL)
+        return F6222_ERR_INVALID_ARG;
 
     uint8_t tx[5] = {0};
     uint8_t rx[5] = {0};
     int ret;
 
-    tx[0] = (uint8_t)(F6222_SPI_M_LOCAL_REG_READ << 5);
+    tx[0] = (uint8_t)(F6222_SPI_M_LOCAL_REG_READ << 5u);
     tx[1] = chip_addr & F6222_CHIP_ADDR_MASK;
     tx[2] = reg & F6222_SPI_REG_ADDR_MASK;
     tx[3] = F6222_SPI_PAD_BYTE;
@@ -62,11 +64,12 @@ f6222_status_t f6222_local_reg_read(f6222_dev_t* dev, uint8_t chip_addr, uint8_t
     ret = dev->spi_xfer(dev->ctx, tx, rx, sizeof(tx));
     if (ret < 0) return F6222_ERR_SPI;
 
-    *val = ((uint16_t)rx[3] << F6222_SPI_DATA_HIGH_SHIFT) | rx[4];
+    *reg_value = ((uint16_t)rx[3] << F6222_SPI_DATA_HIGH_SHIFT) | rx[4];
     return F6222_OK;
 }
 
-f6222_status_t f6222_local_lut_write(f6222_dev_t* dev, uint8_t ch, uint8_t chip_addr, uint8_t lut_addr, uint16_t val) {
+f6222_status_t f6222_local_lut_write(f6222_dev_t* dev, uint8_t ch, uint8_t chip_addr, uint8_t lut_addr,
+                                     uint16_t lut_value) {
     if (dev == NULL || dev->spi_xfer == NULL) return F6222_ERR_INVALID_ARG;
     if (!F6222_CH_IS_VALID(ch) || chip_addr > F6222_CHIP_ADDR_MAX || lut_addr >= F6222_LUT_ENTRIES)
         return F6222_ERR_INVALID_ARG;
@@ -75,11 +78,11 @@ f6222_status_t f6222_local_lut_write(f6222_dev_t* dev, uint8_t ch, uint8_t chip_
     uint8_t ch_idx = F6222_CH_TO_IDX(ch);
     int ret;
 
-    tx[0] = (uint8_t)(F6222_SPI_M_LOCAL_LUT_WRITE << 5) | ((ch_idx & 0x0Fu) << 1);
+    tx[0] = (uint8_t)(F6222_SPI_M_LOCAL_LUT_WRITE << 5u) | ((ch_idx & 0x0Fu) << 1u);
     tx[1] = chip_addr & F6222_CHIP_ADDR_MASK;
     tx[2] = lut_addr & F6222_SPI_LUT_ADDR_MASK;
-    tx[3] = (uint8_t)(val >> F6222_SPI_DATA_HIGH_SHIFT);
-    tx[4] = (uint8_t)(val & F6222_SPI_DATA_LOW_MASK);
+    tx[3] = (uint8_t)(lut_value >> F6222_SPI_DATA_HIGH_SHIFT);
+    tx[4] = (uint8_t)(lut_value & F6222_SPI_DATA_LOW_MASK);
     ret = dev->spi_xfer(dev->ctx, tx, NULL, sizeof(tx));
     if (ret < 0) return F6222_ERR_SPI;
 
@@ -87,9 +90,10 @@ f6222_status_t f6222_local_lut_write(f6222_dev_t* dev, uint8_t ch, uint8_t chip_
 }
 
 f6222_status_t f6222_local_lut_read(f6222_dev_t* dev, uint8_t lut_ch, uint8_t chip_addr, uint8_t lut_addr,
-                                    uint16_t* val) {
+                                    uint16_t* lut_value) {
     if (dev == NULL || dev->spi_xfer == NULL) return F6222_ERR_INVALID_ARG;
-    if (!F6222_CH_IS_VALID(lut_ch) || chip_addr > F6222_CHIP_ADDR_MAX || lut_addr >= F6222_LUT_ENTRIES || val == NULL)
+    if (!F6222_CH_IS_VALID(lut_ch) || chip_addr > F6222_CHIP_ADDR_MAX || lut_addr >= F6222_LUT_ENTRIES ||
+        lut_value == NULL)
         return F6222_ERR_INVALID_ARG;
 
     uint8_t tx[5] = {0};
@@ -97,7 +101,7 @@ f6222_status_t f6222_local_lut_read(f6222_dev_t* dev, uint8_t lut_ch, uint8_t ch
     int ret;
 
     uint8_t ch_idx = F6222_CH_TO_IDX(lut_ch);
-    tx[0] = (F6222_SPI_M_LOCAL_LUT_READ << 5) | ((ch_idx & 0x0Fu) << 1);
+    tx[0] = (F6222_SPI_M_LOCAL_LUT_READ << 5u) | ((ch_idx & 0x0Fu) << 1u);
     tx[1] = chip_addr & F6222_CHIP_ADDR_MASK;
     tx[2] = lut_addr & F6222_SPI_LUT_ADDR_MASK;
     tx[3] = F6222_SPI_PAD_BYTE;
@@ -106,23 +110,23 @@ f6222_status_t f6222_local_lut_read(f6222_dev_t* dev, uint8_t lut_ch, uint8_t ch
     ret = dev->spi_xfer(dev->ctx, tx, rx, sizeof(tx));
     if (ret < 0) return F6222_ERR_SPI;
 
-    *val = ((uint16_t)rx[3] << F6222_SPI_DATA_HIGH_SHIFT) | rx[4];
+    *lut_value = ((uint16_t)rx[3] << F6222_SPI_DATA_HIGH_SHIFT) | rx[4];
 
     return F6222_OK;
 }
 
 f6222_status_t f6222_global_reg_write(f6222_dev_t* dev, bool sa_op_enable, uint8_t sa_index, uint8_t reg,
-                                      uint16_t val) {
+                                      uint16_t reg_value) {
     if (dev == NULL || dev->spi_xfer == NULL) return F6222_ERR_INVALID_ARG;
     if (sa_index > 7u || reg > F6222_SPI_REG_ADDR_MASK) return F6222_ERR_INVALID_ARG;
 
     uint8_t tx[4] = {0};
     int ret;
 
-    tx[0] = (uint8_t)(F6222_SPI_M_GLOBAL_REG_WRITE << 5) | ((sa_op_enable ? 1u : 0u) << 3) | (sa_index & 0x07u);
+    tx[0] = (uint8_t)(F6222_SPI_M_GLOBAL_REG_WRITE << 5u) | ((sa_op_enable ? 1u : 0u) << 3u) | (sa_index & 0x07u);
     tx[1] = reg & F6222_SPI_REG_ADDR_MASK;
-    tx[2] = (uint8_t)(val >> F6222_SPI_DATA_HIGH_SHIFT);
-    tx[3] = (uint8_t)(val & F6222_SPI_DATA_LOW_MASK);
+    tx[2] = (uint8_t)(reg_value >> F6222_SPI_DATA_HIGH_SHIFT);
+    tx[3] = (uint8_t)(reg_value & F6222_SPI_DATA_LOW_MASK);
     ret = dev->spi_xfer(dev->ctx, tx, NULL, sizeof(tx));
     if (ret < 0) return F6222_ERR_SPI;
 
@@ -130,7 +134,7 @@ f6222_status_t f6222_global_reg_write(f6222_dev_t* dev, bool sa_op_enable, uint8
 }
 
 f6222_status_t f6222_lut_write_global(f6222_dev_t* dev, bool lut_all_channels, uint8_t ch, uint8_t lut_addr,
-                                      uint16_t val, const uint16_t* extra_vals, size_t extra_count) {
+                                      uint16_t lut_value, const uint16_t* extra_vals, size_t extra_count) {
     if (dev == NULL || dev->spi_xfer == NULL) return F6222_ERR_INVALID_ARG;
     if ((!lut_all_channels && !F6222_CH_IS_VALID(ch)) || lut_addr >= F6222_LUT_ENTRIES ||
         (extra_count > 0u && extra_vals == NULL) || extra_count > F6222_LUT_WRITE_MAX_EXTRA)
@@ -139,18 +143,18 @@ f6222_status_t f6222_lut_write_global(f6222_dev_t* dev, bool lut_all_channels, u
     size_t tx_len = 4u + extra_count * 2u;
     uint8_t tx[4u + 2u * F6222_LUT_WRITE_MAX_EXTRA] = {0};
     uint8_t ch_idx = F6222_CH_TO_IDX(ch);
-    size_t i;
+    size_t extra_word_idx;
     int ret;
 
     tx[0] =
-        (F6222_SPI_M_GLOBAL_LUT_WRITE << 5) | ((lut_all_channels ? 1u : 0u) << F6222_SPI_LM_SHIFT) | (ch_idx & 0x0Fu);
+        (F6222_SPI_M_GLOBAL_LUT_WRITE << 5u) | ((lut_all_channels ? 1u : 0u) << F6222_SPI_LM_SHIFT) | (ch_idx & 0x0Fu);
     tx[1] = lut_addr & F6222_SPI_LUT_ADDR_MASK;
-    tx[2] = (uint8_t)(val >> F6222_SPI_DATA_HIGH_SHIFT);
-    tx[3] = (uint8_t)(val & F6222_SPI_DATA_LOW_MASK);
+    tx[2] = (uint8_t)(lut_value >> F6222_SPI_DATA_HIGH_SHIFT);
+    tx[3] = (uint8_t)(lut_value & F6222_SPI_DATA_LOW_MASK);
 
-    for (i = 0; i < extra_count; i++) {
-        tx[4u + i * 2u] = (uint8_t)(extra_vals[i] >> F6222_SPI_DATA_HIGH_SHIFT);
-        tx[4u + i * 2u + 1u] = (uint8_t)(extra_vals[i] & F6222_SPI_DATA_LOW_MASK);
+    for (extra_word_idx = 0; extra_word_idx < extra_count; extra_word_idx++) {
+        tx[4u + extra_word_idx * 2u] = (uint8_t)(extra_vals[extra_word_idx] >> F6222_SPI_DATA_HIGH_SHIFT);
+        tx[4u + extra_word_idx * 2u + 1u] = (uint8_t)(extra_vals[extra_word_idx] & F6222_SPI_DATA_LOW_MASK);
     }
 
     ret = dev->spi_xfer(dev->ctx, tx, NULL, tx_len);

@@ -454,24 +454,26 @@ f6222_status_t f6222_scratch_test(f6222_dev_t* dev, uint8_t chip_addr);
  * @param rf_load    F6222_SPI_RF_LOAD_00 (buffer) or F6222_SPI_RF_LOAD_01 (immediate).
  * @param chip_addr  5-bit chip address matching hardware ADD[4:0] pins (0–31).
  * @param reg        7-bit register address.
- * @param val        16-bit data to write.
+ * @param reg_value  16-bit data to write.
  */
-f6222_status_t f6222_local_reg_write(f6222_dev_t* dev, uint8_t rf_load, uint8_t chip_addr, uint8_t reg, uint16_t val);
+f6222_status_t f6222_local_reg_write(f6222_dev_t* dev, uint8_t rf_load, uint8_t chip_addr, uint8_t reg,
+                                     uint16_t reg_value);
 
 /**
  * f6222_local_reg_read() — Local Register Read, Mode 000.
  * 24-bit command word + 16-bit readback (40-bit SPI exchange).
  */
-f6222_status_t f6222_local_reg_read(f6222_dev_t* dev, uint8_t chip_addr, uint8_t reg, uint16_t* val);
+f6222_status_t f6222_local_reg_read(f6222_dev_t* dev, uint8_t chip_addr, uint8_t reg, uint16_t* reg_value);
 
 /**
  * f6222_local_lut_write() — Local LUT Write, Mode 110 (40-bit frame).
  *
  * @param ch         Channel number, 1 (CH1) … 16 (CH16).
  * @param lut_addr   LUT entry index, 0–127.
- * @param val        16-bit CHn_SET equivalent value (phase + gain + enable).
+ * @param lut_value  16-bit CHn_SET equivalent value (phase + gain + enable).
  */
-f6222_status_t f6222_local_lut_write(f6222_dev_t* dev, uint8_t ch, uint8_t chip_addr, uint8_t lut_addr, uint16_t val);
+f6222_status_t f6222_local_lut_write(f6222_dev_t* dev, uint8_t ch, uint8_t chip_addr, uint8_t lut_addr,
+                                     uint16_t lut_value);
 
 /**
  * f6222_local_lut_read() — Local LUT Read, Mode 111 (§8.4).
@@ -483,10 +485,10 @@ f6222_status_t f6222_local_lut_write(f6222_dev_t* dev, uint8_t ch, uint8_t chip_
  * @param lut_ch     Channel number, 1 (CH1) … 16 (CH16).
  * @param chip_addr  5-bit chip address matching hardware ADD[4:0] pins (0–31).
  * @param lut_addr   LUT entry index, 0–127.
- * @param val        Receives the 16-bit LUT data.
+ * @param lut_value  Receives the 16-bit LUT data.
  */
 f6222_status_t f6222_local_lut_read(f6222_dev_t* dev, uint8_t lut_ch, uint8_t chip_addr, uint8_t lut_addr,
-                                    uint16_t* val);
+                                    uint16_t* lut_value);
 
 /**
  * f6222_global_reg_write() — Global Register Write, Mode 011 (32-bit frame).
@@ -497,9 +499,10 @@ f6222_status_t f6222_local_lut_read(f6222_dev_t* dev, uint8_t lut_ch, uint8_t ch
  * @param sa_op_enable  true = sub-array select enabled (SE = 1).
  * @param sa_index      Sub-array index SA[2:0] when sa_op_enable is true.
  * @param reg           7-bit register address RA[6:0].
- * @param val           16-bit data D[15:0].
+ * @param reg_value     16-bit data D[15:0].
  */
-f6222_status_t f6222_global_reg_write(f6222_dev_t* dev, bool sa_op_enable, uint8_t sa_index, uint8_t reg, uint16_t val);
+f6222_status_t f6222_global_reg_write(f6222_dev_t* dev, bool sa_op_enable, uint8_t sa_index, uint8_t reg,
+                                      uint16_t reg_value);
 
 /**
  * f6222_lut_write_global() — Global LUT Write, Mode 010 (§8.7).
@@ -508,19 +511,19 @@ f6222_status_t f6222_global_reg_write(f6222_dev_t* dev, bool sa_op_enable, uint8
  * 32-bit command word plus optional continuous 16-bit data in one CS transaction.
  *
  * LM (`lut_all_channels`):
- *   false — write `val` (+ extras) starting at one channel/LUT address; hardware
+ *   false — write `lut_value` (+ extras) starting at one channel/LUT address; hardware
  *           auto-advances to the next channel, then the next LUT address.
  *   true  — write to all channels at `lut_addr`; each extra word advances LUT addr.
  *
  * @param lut_all_channels  LM bit: false = one channel, true = all channels.
  * @param ch                Channel 1..16; validated only when lut_all_channels is false.
  * @param lut_addr          Starting LUT entry, 0..127.
- * @param val               First 16-bit CHn_SET data in the command word.
- * @param extra_vals        Additional 16-bit data after val; NULL when extra_count is 0.
- * @param extra_count       Number of extra 16-bit words (not including val).
+ * @param lut_value         First 16-bit CHn_SET data in the command word.
+ * @param extra_vals        Additional 16-bit data after lut_value; NULL when extra_count is 0.
+ * @param extra_count       Number of extra 16-bit words (not including lut_value).
  */
 f6222_status_t f6222_lut_write_global(f6222_dev_t* dev, bool lut_all_channels, uint8_t ch, uint8_t lut_addr,
-                                      uint16_t val, const uint16_t* extra_vals, size_t extra_count);
+                                      uint16_t lut_value, const uint16_t* extra_vals, size_t extra_count);
 
 /* ── Channel Control ─────────────────────────────────────────── */
 
