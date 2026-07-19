@@ -64,7 +64,7 @@
  * ═══════════════════════════════════════════════════════════════ */
 
 /* §9.2.1 Register Name: CTRL_CFG — reset 0x0010, typical 0x0000 */
-#define F6222_CTRL_CFG_GLOBAL_PWD (1u << 4)
+#define F6222_CTRL_CFG_GLOBAL_PWD (1u << 4) /* 1 = all channels powered down, 0 = enabled (negative logic) */
 #define F6222_CTRL_CFG_SCAN_MODE (1u << 3)
 #define F6222_CTRL_CFG_SA_INDEX_MASK 0x0007u
 #define F6222_CTRL_CFG_RESET 0x0010u
@@ -173,7 +173,7 @@
 #define F6222_CHn_SET_VGA_SET_MASK (0x3Fu << 4)
 #define F6222_CHn_SET_VGA_SET_MAX 63u
 #define F6222_CHn_SET_LNA_SW (1u << 3)
-#define F6222_CHn_SET_CH_PWD (1u << 0)
+#define F6222_CHn_SET_CH_PWD (1u << 0) /* 1 = channel powered down, 0 = enabled (negative logic) */
 #define F6222_CHn_SET_RESET 0x03F9u
 #define F6222_CHn_SET_TYPICAL 0x03F8u
 
