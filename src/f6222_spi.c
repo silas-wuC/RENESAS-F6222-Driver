@@ -142,7 +142,7 @@ f6222_status_t f6222_lut_write_global(f6222_dev_t* dev, bool lut_all_channels, u
 
     size_t tx_len = 4u + extra_count * 2u;
     uint8_t tx[4u + 2u * F6222_LUT_WRITE_MAX_EXTRA] = {0};
-    uint8_t ch_idx = F6222_CH_TO_IDX(ch);
+    uint8_t ch_idx = lut_all_channels ? 0u : F6222_CH_TO_IDX(ch);
     size_t extra_word_idx;
     int ret;
 
