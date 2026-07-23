@@ -169,6 +169,11 @@ static const f6222_init_entry_t f6222_init_pattern[] = {
 
 #define F6222_INIT_PATTERN_COUNT (sizeof(f6222_init_pattern) / sizeof(f6222_init_pattern[0]))
 
+/* Lock the entry count: the table is a verbatim LA capture (F6222_INIT.csv);
+ * a silent add/delete would corrupt the init sequence. Update deliberately. */
+_Static_assert(F6222_INIT_PATTERN_COUNT == 76u,
+               "F6222 init table entry count changed — re-verify against F6222_INIT.csv LA capture");
+
 static f6222_status_t f6222_set_init_pattern(f6222_dev_t* dev, uint8_t chip_addr) {
     if (dev == NULL || dev->spi_xfer == NULL) return F6222_ERR_INVALID_ARG;
     if (chip_addr > F6222_CHIP_ADDR_MAX) return F6222_ERR_INVALID_ARG;
