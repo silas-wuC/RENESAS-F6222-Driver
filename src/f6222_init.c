@@ -34,6 +34,12 @@ f6222_status_t f6222_wait_ready(f6222_dev_t* dev, uint8_t chip_addr) {
         }
     }
 
+    /* Distinguish the two timeout outcomes:
+     *   matched > 0 : the correct SILICON_ID was seen but never held for
+     *                 F6222_READY_CONFIRM_READS consecutive reads — chip is
+     *                 present but the ID read is unstable/flaky.
+     *   matched == 0: SILICON_ID was never matched — chip is not ready, not
+     *                 powered, or still in reset. */
     return (matched > 0) ? F6222_ERR_SILICON_ID : F6222_ERR_READY_TIMEOUT;
 }
 
