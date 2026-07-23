@@ -574,10 +574,17 @@ f6222_status_t f6222_set_lna_sw(f6222_dev_t* dev, uint8_t rf_load, uint8_t chip_
 f6222_status_t f6222_set_global_pwd(f6222_dev_t* dev, uint8_t chip_addr, bool power_down);
 
 /**
- * f6222_apply_rf() — latch buffered phase/gain settings to RF output.
+ * f6222_apply_rf() — latch buffered phase/gain settings to RF output
+ * on every chip on the SPI bus, simultaneously.
  *
- * Issues a local register write to SCRATCH with F6222_SPI_RF_LOAD_01,
- * triggering a bus-wide update of all buffered CHn_SET values on every chip.
+ * Issues a Local Register Write to SCRATCH with F6222_RF_LOAD_IMMEDIATE.
+ * Per datasheet §8.1, RF Load=01 latches all buffered CHn_SET values into
+ * the active registers of every device on the SPI bus at once — this
+ * broadcast-latch behavior is independent of the chip_addr field in the
+ * command word, which only targets where the write data lands. SCRATCH
+ * has its own read-back-test function (see f6222_scratch_test()), but is
+ * used here only as a safe dummy target with no functional register
+ * content to disturb while carrying the RF Load strobe.
  */
 f6222_status_t f6222_apply_rf(f6222_dev_t* dev, uint8_t chip_addr);
 
